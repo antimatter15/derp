@@ -1,0 +1,93 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.header {
+	margin: 20px;
+}
+
+.controls {
+	margin: 20px;
+}
+
+.title {
+	font-size: large;
+	width: 100%;
+	border: none;
+	margin-bottom: 10px;
+}
+
+.container {
+	display: flex;
+	margin: 10px;
+	flex-wrap: wrap;
+}
+
+h1 span {
+	font-weight: normal;
+	font-size: small;
+}
+
+textarea {
+	width: 100%;
+	height: 200px;
+}
+
+circle.active {
+	fill: white;
+}
+
+rect.mainline {
+
+}
+.editor {
+	border: 1px solid #dddddd;
+	margin-bottom: 10px;
+}
+
+.artboard {
+    border: 1px solid gray;
+    padding: 10px;
+    margin: 10px;
+    width: 400px;
+    flex-grow: 0;
+    flex-shrink: 1;
+}
+
+rect.inactive {
+	fill: #bbb;
+}
+
+rect.active {
+	fill: red;
+}
+
+.genesis {
+	fill: black;
+}
+
+
+line.mainline {
+	stroke: black;
+	stroke-width: 2;
+}
+
+line.inactive {
+	stroke: #bbb;
+	stroke-width: 1;
+}
+
+svg.dag {
+	width: 100%;
+	margin-top: 10px;
+}
+
+input.linear {
+	width: 100%;
+}

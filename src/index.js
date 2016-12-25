@@ -166,12 +166,15 @@ function DAG(props){
         
             elements.push(<rect 
                 x={x} y={y - v_height/2} 
+                rx={2} ry={2}
                 width={rect_width} height={v_height} className={trail.includes(view.pointer) ? 'active' : (
                     path.includes(node) ? 'mainline' : 'inactive') }
                 onClick={e => props.setPointer(node)}/>);
 
-            if(trail.includes(view.pointer) && trail.length > 1){
-                elements.push(<circle cx={x + rect_width * (trail.indexOf(view.pointer) / (trail.length - 1) )} cy={y} r={3} className="active" />)
+            if(trail.includes(view.pointer) && trail.length > 0){
+                var trailIndex = trail.indexOf(view.pointer),
+                    eps = 0.001;
+                elements.push(<circle cx={x + rect_width * ((trailIndex + eps) / (trail.length - 1 + eps) )} cy={y} r={3} className="active" />)
             }
 
             elements.push(<text x={2+x} y={y}>{label}</text>)
@@ -240,7 +243,7 @@ function TimeSlice2(props){
 
                 {(props.view.pointer == chunk && props.messages[chunk]) ? 
                     <button onClick={e => props.setMessage(props.view.pointer, '')}>Remove Message</button> :
-                    <button onClick={e => props.setMessage(props.view.pointer, '...')}>Insert Message</button>
+                    <button onClick={e => props.setMessage(props.view.pointer, 'r' + pathIndex)}>Insert Message</button>
                 }
 
                 <button 

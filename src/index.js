@@ -234,11 +234,11 @@ function TimeSlice2(props){
 
     return <div className="artboard">
         <div className="titlebar">
-            <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(type to add message)" 
+            <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(type message)" 
                 onChange={e => props.setMessage(chunk, e.target.value) }/>
             <div className="title-controls">
 
-                {props.view.pointer == chunk ? 
+                {(props.view.pointer == chunk && props.messages[chunk]) ? 
                     <button onClick={e => props.setMessage(props.view.pointer, '')}>Remove Message</button> :
                     <button onClick={e => props.setMessage(props.view.pointer, '...')}>Insert Message</button>
                 }

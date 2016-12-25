@@ -239,7 +239,7 @@ function TimeSlice2(props){
             <div className="title-controls">
 
                 {props.view.pointer == chunk ? 
-                    <button disabled={getChildren(props.store, chunk).length == 0} onClick={e => props.setMessage(props.view.pointer, '')}>Remove Message</button> :
+                    <button onClick={e => props.setMessage(props.view.pointer, '')}>Remove Message</button> :
                     <button onClick={e => props.setMessage(props.view.pointer, '...')}>Insert Message</button>
                 }
 
@@ -330,6 +330,7 @@ class StateKeeper extends React.Component {
             <div className="controls">
                 <button onClick={e => this.setState(DEFAULT_STATE)}>Tabula Rasa</button>
                 <button onClick={e => this.setState(require('./fibonacci.json'))}>Fibonacci</button>
+                <button onClick={e => this.setState(require('./merge.json'))}>Merge</button>
             </div>
         </div>
     }

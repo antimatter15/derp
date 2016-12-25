@@ -28,6 +28,38 @@ function getPath(store, id){
     return getPath(store, commit.parent).concat([id])
 }
 
+function getChildren(store, id){
+    return Object.keys(store).filter(k => store[k].parent == id);
+}
+
+
+function computeAnchor(store, id){
+    var children = getChildren.bind(this, store)
+    var node = id;
+    var ch = children(node);
+    while(ch.length > 0){
+        node = ch[0]
+        ch = children(node)
+    }
+    return node;
+}
+
+function getCurrentChunk(store, id, views, messages){
+    var children = getChildren.bind(this, store)
+    var node = id;
+    var ch = children(node);
+
+    while(ch.length == 1 
+        && node 
+        && !views.some(k => k.anchor == node)
+        && !(messages[node])
+        ){
+        node = ch[0]
+        // trail.push(node)
+        ch = children(node)
+    }
+    return node;
+}
 
 import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript'
@@ -94,17 +126,12 @@ function DAG(props){
         view = props.view,
         messages = props.messages;
 
-    const v_spacing = 20;
-    const h_spacing = 20;
+    const v_spacing = 30;
+    const v_height = 20;
 
-    const v_height = 10;
+    const h_spacing = 10;
 
-    function children(node){
-        return Object.keys(store)
-            .filter(k => store[k].parent == node);
-    }
-
-
+    var children = getChildren.bind(this, store)
     var path = getPath(store, view.anchor);
 
     var elements = [],
@@ -117,6 +144,8 @@ function DAG(props){
             && node 
             // && view.anchor != node
             && !props.views.some(k => k.anchor == node)
+
+            && !(props.messages[node])
             // && view.pointer != node 
             // && store[ch[0]].date - store[trail[trail.length - 1]].date < 1000
             ){
@@ -130,6 +159,11 @@ function DAG(props){
         }else{
             // console.log(trail.includes(view.pointer))
             var rect_width = 10 * Math.sqrt(trail.length + 1)
+
+            var label = messages[node] || '';
+
+            rect_width = Math.max(rect_width, label.length*7)
+        
             elements.push(<rect 
                 x={x} y={y - v_height/2} 
                 width={rect_width} height={v_height} className={trail.includes(view.pointer) ? 'active' : (
@@ -139,6 +173,8 @@ function DAG(props){
             if(trail.includes(view.pointer) && trail.length > 1){
                 elements.push(<circle cx={x + rect_width * (trail.indexOf(view.pointer) / (trail.length - 1) )} cy={y} r={3} className="active" />)
             }
+
+            elements.push(<text x={2+x} y={y}>{label}</text>)
 
             x += rect_width;
         }
@@ -164,7 +200,6 @@ function DAG(props){
 
 
 
-
 function TimeSlice2(props){
     var state = getState(props.store, props.view.pointer);
 
@@ -185,33 +220,52 @@ function TimeSlice2(props){
             props.updateView({ pointer: id })    
         }else{
             // TODO: find a suitable end-of-line for anchor
-            props.updateView({ pointer: id, anchor: id })
+            
+            props.updateView({ pointer: id, anchor: computeAnchor(props.store, id) })
+
         }
     }
 
     var pathIndex = path.indexOf(props.view.pointer);
 
-    return <div className="artboard">
-        <input type="text" className="title" value={props.view.title} 
-            onChange={e=>props.updateView({ title: e.target.value }) }/>
 
+    var chunk = getCurrentChunk(props.store, props.view.pointer, props.views, props.messages);
+
+
+    return <div className="artboard">
+        <div className="titlebar">
+            <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(type to add message)" 
+                onChange={e => props.setMessage(chunk, e.target.value) }/>
+            <div className="title-controls">
+
+                {props.view.pointer == chunk ? 
+                    <button disabled={getChildren(props.store, chunk).length == 0} onClick={e => props.setMessage(props.view.pointer, '')}>Remove Message</button> :
+                    <button onClick={e => props.setMessage(props.view.pointer, '...')}>Insert Message</button>
+                }
+
+                <button 
+                    disabled={pathIndex <= 0}
+                    onClick={e => updatePointer(path[pathIndex - 1])}>↺</button>
+                <button 
+                    disabled={pathIndex >= path.length - 1}
+                    onClick={e => updatePointer(path[pathIndex + 1])}>↻</button>
+                <button onClick={e => props.fork()}>Fork</button>
+                
+
+                <button onClick={e => props.close()}>&times;</button>
+            </div>
+        </div>
         <Interface state={state} commit={commit} />
 
         <input type="range" className="linear" min={0} max={path.length - 1} 
             disabled={path.length < 2}
             onChange={e => updatePointer(path[e.target.value])}
             value={path.indexOf(props.view.pointer)} />
-        <button 
-            disabled={pathIndex <= 0}
-            onClick={e => updatePointer(path[pathIndex - 1])}>Undo</button>
-        <button 
-            disabled={pathIndex >= path.length - 1}
-            onClick={e => updatePointer(path[pathIndex + 1])}>Redo</button>
-        <button onClick={e => props.fork()}>Fork</button>
-        <button onClick={e => props.close()}>&times;</button>
+
         <DAG 
             store={props.store} 
             view={props.view} 
+            messages={props.messages}
             views={props.views}
             setPointer={updatePointer} />
         
@@ -233,6 +287,8 @@ const DEFAULT_STATE = {
         anchor: '0'
     }]
 };
+
+
 
 
 class StateKeeper extends React.Component {
@@ -260,6 +316,9 @@ class StateKeeper extends React.Component {
                         view={view}
                         views={views}
                         messages={this.state.messages}
+
+                        setMessage={(id, message) => this.setState({ messages: 
+                            Object.assign({}, this.state.messages, { [id]: message })})}
                         updateView={data => this.setState({ views: 
                             views.slice(0, index)
                             .concat([Object.assign({}, view, data)], 
@@ -269,7 +328,8 @@ class StateKeeper extends React.Component {
                     />)
             }</div>
             <div className="controls">
-                <button onClick={e => this.setState(DEFAULT_STATE)}>Reset</button>
+                <button onClick={e => this.setState(DEFAULT_STATE)}>Tabula Rasa</button>
+                <button onClick={e => this.setState(require('./fibonacci.json'))}>Fibonacci</button>
             </div>
         </div>
     }
@@ -280,7 +340,7 @@ class StateKeeper extends React.Component {
 function App(props){
     return <div className="app">
         <div className="header">
-            <h1>Derp <span>kinda like version control or something</span></h1>
+            <h1>derp <span>kinda like version control or something</span></h1>
         </div>
         <StateKeeper />
     </div>

@@ -20,7 +20,6 @@ body {
 	font-size: large;
 	width: 100%;
 	border: none;
-	margin-bottom: 10px;
 }
 
 .container {
@@ -73,6 +72,26 @@ rect.active {
 }
 
 
+text {
+    alignment-baseline: central;
+    fill: white;
+    font-size: small;
+    pointer-events: none;
+    -webkit-user-select: none;
+}
+
+
+.titlebar {
+	display: flex;
+	margin-bottom: 10px;
+
+	
+}
+
+.title-controls {
+	white-space: nowrap;
+}
+	
 line.mainline {
 	stroke: black;
 	stroke-width: 2;

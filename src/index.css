@@ -18,6 +18,8 @@ body {
 
 label {
 	font-size: small;
+	-webkit-user-select: none;
+	
 }
 
 label[disabled] {
@@ -28,6 +30,7 @@ label[disabled] {
 	font-size: large;
 	width: 100%;
 	border: none;
+	background: transparent;
 }
 
 .container {
@@ -81,6 +84,7 @@ rect.mainline {
 
 .artboard.focused {
 	border-color: #bf96bf;
+    background: #fff8ff;
 }
 
 rect.inactive {

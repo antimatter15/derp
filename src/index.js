@@ -82,7 +82,7 @@ class CodeEditor extends React.Component {
             keyMap: 'sublime',
             autoCloseBrackets: true,
             lineWrapping: true,
-
+            undoDepth: 0,
             
             tabSize: 4,
             indentUnit: 4,
@@ -261,7 +261,7 @@ function TimeSlice2(props){
                 <button onClick={e => props.fork()}>Fork</button>
                 
 
-                <button onClick={e => props.close()}>&times;</button>
+                <button disabled={props.views.length == 1} onClick={e => props.close()}>&times;</button>
             </div>
         </div>
         <Interface state={state} commit={commit} onFocus={props.setFocus} />

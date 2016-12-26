@@ -33,7 +33,7 @@ var childStore = null,
     childMapping = {};
 
 function getChildren(store, id){
-    // return Object.keys(store).filter(k => store[k].parent == id);
+    // return Object.keys(store).filter(k => store[k].parent === id);
 
     if(store !== childStore){
         childStore = store;
@@ -67,7 +67,7 @@ function getCurrentChunk(store, id, views, messages){
     var node = id;
     var ch = children(node);
 
-    while(ch.length == 1 
+    while(ch.length === 1 
         && node 
         // && !views.some(k => k.anchor == node)
         && !(messages[node])
@@ -142,11 +142,11 @@ class CodeEditor extends React.Component {
         this.cm = cm;
         
         cm.on('change', (cm, ch) => {
-            if(ch.origin != 'setValue' && cm.getValue() != this.props.value){
+            if(ch.origin !== 'setValue' && cm.getValue() !== this.props.value){
                 this.props.onChange(cm.getValue())
             }
             cm.getAllMarks()
-                .filter(k => k.__result && k.__lineText.trim() != cm.getLine(k.find().line).trim())
+                .filter(k => k.__result && k.__lineText.trim() !== cm.getLine(k.find().line).trim())
                 .forEach(k => k.clear());
             // console.log(cm.getValue(), ch)
             // this.props.onChange(cm.getValue())
@@ -157,7 +157,7 @@ class CodeEditor extends React.Component {
         this.cm.getAllMarks()
             .filter(k => k.__diff)
             .forEach(k => k.clear());
-        if(typeof this.props.compare == 'string'){
+        if(typeof this.props.compare === 'string'){
 
             var changes = dmp.diff_main(this.props.compare, this.props.value);
             dmp.diff_cleanupSemantic(changes)
@@ -166,17 +166,15 @@ class CodeEditor extends React.Component {
             for(var i = 0; i < changes.length; i++){
                 let [type, text] = changes[i];
                 if(type < 0){ // delete
-                    var thing = document.createElement('span')
+                    let thing = document.createElement('span')
                     thing.className = 'deleted'
                     thing.innerText = text;
-                    var mark = this.cm.setBookmark(this.cm.posFromIndex(offset), {
+                    let mark = this.cm.setBookmark(this.cm.posFromIndex(offset), {
                         widget: thing
                     })
                     mark.__diff = true;
-
-                    
                 }else if(type > 0){ // insert
-                    var mark = this.cm.markText(this.cm.posFromIndex(offset), this.cm.posFromIndex(offset + text.length), {
+                    let mark = this.cm.markText(this.cm.posFromIndex(offset), this.cm.posFromIndex(offset + text.length), {
                         className: 'inserted'
                     })
                     mark.__diff = true;
@@ -190,7 +188,7 @@ class CodeEditor extends React.Component {
         }
     }
     componentDidUpdate(){
-        if(!this.cm.curOp && this.props.value != this.cm.getValue()){
+        if(!this.cm.curOp && this.props.value !== this.cm.getValue()){
             var selections = this.cm.getSelections()
             this.cm.setValue(this.props.value)
             try {
@@ -245,15 +243,10 @@ function DAG(props){
     function recursive(node, x, y){
         var ch = children(node);
         var trail = [node]
-        while(ch.length == 1 
+        while(ch.length === 1 
             && node 
-            // && view.anchor != node
-            // && !props.views.some(k => k.anchor == node)
-
             && !(props.messages[node])
-            // && view.pointer != node 
-            // && store[ch[0]].date - store[trail[trail.length - 1]].date < 1000
-            ){
+        ){
             node = ch[0]
             trail.push(node)
             ch = children(node)
@@ -270,6 +263,7 @@ function DAG(props){
             rect_width = Math.max(rect_width, label.length*7)
         
             elements.push(<rect 
+                key={'r-' + node}
                 x={x} y={y - v_height/2} 
                 rx={2} ry={2}
                 width={rect_width} height={v_height} className={trail.includes(view.pointer) ? 'active' : (
@@ -279,10 +273,13 @@ function DAG(props){
             if(trail.includes(view.pointer) && trail.length > 0){
                 var trailIndex = trail.indexOf(view.pointer),
                     eps = 0.001;
-                elements.push(<circle cx={x + rect_width * ((trailIndex + eps) / (trail.length - 1 + eps) )} cy={y} r={3} className="active" />)
+                elements.push(<circle 
+                    key={'c-' + node}
+                    cx={x + rect_width * ((trailIndex + eps) / (trail.length - 1 + eps) )} 
+                    cy={y} r={3} className="active" />)
             }
 
-            elements.push(<text x={2+x} y={y}>{label}</text>)
+            elements.push(<text key={'t-'+node} x={2+x} y={y}>{label}</text>)
 
             x += rect_width;
         }
@@ -298,6 +295,7 @@ function DAG(props){
             //     className={path.includes(child) ? 'mainline' : 'inactive'} />)
 
             if(node) lines.push(<path 
+                key={'p-' + child}
                 d={curvedHorizontal(x,y,x + h_spacing,y1)}
                 className={path.includes(child) ? 'mainline' : 'inactive'} />)
             y1 = recursive(child, x + h_spacing, y1);
@@ -323,8 +321,21 @@ function curvedHorizontal(x1, y1, x2, y2) {
 }
 
 
-function TimeSlice2(props){
+function Artboard(props){
     var state = getState(props.store, props.view.pointer);
+    var path = getPath(props.store, props.view.anchor);
+    var pathIndex = path.indexOf(props.view.pointer);
+    var chunk = getCurrentChunk(props.store, props.view.pointer, props.views, props.messages);
+
+    var updatePointer = (id) => {
+        if(path.includes(id)){
+            props.updateView({ pointer: id })    
+        }else{
+            // TODO: find a suitable end-of-line for anchor
+            props.updateView({ pointer: id, anchor: computeAnchor(props.store, id) })
+        }
+    }
+
 
     var commit = (delta) => {
         var id = 'C' + Date.now();
@@ -335,25 +346,6 @@ function TimeSlice2(props){
         })
         updatePointer(id)
     }
-
-    var path = getPath(props.store, props.view.anchor);
-
-    var updatePointer = (id) => {
-        if(path.includes(id)){
-            props.updateView({ pointer: id })    
-        }else{
-            // TODO: find a suitable end-of-line for anchor
-            
-            props.updateView({ pointer: id, anchor: computeAnchor(props.store, id) })
-
-        }
-    }
-
-    var pathIndex = path.indexOf(props.view.pointer);
-
-
-    var chunk = getCurrentChunk(props.store, props.view.pointer, props.views, props.messages);
-
 
     var fork = () => {
         props.fork()
@@ -374,11 +366,9 @@ function TimeSlice2(props){
                 onChange={e => props.setMessage(chunk, e.target.value) }/>
 
             <div className="title-controls">
-
-            <button disabled={props.messages[props.view.pointer]} onClick={e => props.setMessage(props.view.pointer, 'r' + pathIndex)}>Split Commit</button>
-            <button disabled={!props.messages[chunk]} onClick={e => props.setMessage(chunk, '')}>Join Commit</button>
-
-        </div>
+                <button disabled={props.messages[props.view.pointer]} onClick={e => props.setMessage(props.view.pointer, 'r' + pathIndex)}>Split Commit</button>
+                <button disabled={!props.messages[chunk]} onClick={e => props.setMessage(chunk, '')}>Join Commit</button>
+            </div>
         </div>
         <div className="title-controls" style={{marginBottom: 10}}>
             <label disabled={props.views.length < 2}><input type="checkbox" checked={props.isFocused} 
@@ -386,15 +376,15 @@ function TimeSlice2(props){
                 onChange={e => e.target.checked ? props.setFocus() : props.clearFocus() } /> Merge</label>
 
             <div style={{float: 'right'}}>
-            <button 
-                disabled={pathIndex <= 0}
-                onClick={e => updatePointer(path[pathIndex - 1])}>↺</button>
-            <button 
-                disabled={pathIndex >= path.length - 1}
-                onClick={e => updatePointer(path[pathIndex + 1])}>↻</button>
-            <button onClick={e => fork()}>Fork</button>
-            
-            <button disabled={props.views.length == 1} onClick={e => props.close()}>&times;</button>
+                <button 
+                    disabled={pathIndex <= 0}
+                    onClick={e => updatePointer(path[pathIndex - 1])}>↺</button>
+                <button 
+                    disabled={pathIndex >= path.length - 1}
+                    onClick={e => updatePointer(path[pathIndex + 1])}>↻</button>
+                <button onClick={e => fork()}>Fork</button>
+                
+                <button disabled={props.views.length === 1} onClick={e => props.close()}>&times;</button>
             </div>
         </div>
 
@@ -467,7 +457,8 @@ class StateKeeper extends React.Component {
         return <div>
             <div className="container">{
                 views.map((view, index) => 
-                    <TimeSlice2 
+                    <Artboard 
+                        key={index}
                         store={this.state.store}
                         appendStore={(id, value) => this.setState({ store: 
                             Object.assign({}, this.state.store, { [id]: value }) })}
@@ -476,7 +467,7 @@ class StateKeeper extends React.Component {
                         messages={this.state.messages}
 
                         activeState={activeState}
-                        isFocused={this.state.viewIndex == index}
+                        isFocused={this.state.viewIndex === index}
                         setFocus={() => this.setState({ viewIndex: index })}
                         clearFocus={() => this.setState({ viewIndex: -1 })}
 

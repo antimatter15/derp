@@ -222,6 +222,18 @@ function Interface(props){
     </div>
 }
 
+var textNode = document.createElementNS("http://www.w3.org/2000/svg","text");
+var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+svg.setAttribute('class', 'measure')
+svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+document.body.appendChild(svg);
+svg.appendChild(textNode)
+
+function measureText(text){
+    if(!text.trim()) return 0;
+    textNode.textContent = text;
+    return textNode.getComputedTextLength();
+}
 
 
 function DAG(props){
@@ -260,7 +272,7 @@ function DAG(props){
 
             var label = messages[node] || '';
 
-            rect_width = Math.max(rect_width, label.length*7)
+            rect_width = Math.max(rect_width, 5 + measureText(label))
         
             elements.push(<rect 
                 key={'r-' + node}

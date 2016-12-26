@@ -9,6 +9,12 @@ body {
 	box-sizing: border-box;
 }
 
+
+svg.measure {
+	position: absolute;
+	left: -1000px;
+	top: -1000px;
+}
 .header {
 	margin: 20px;
 }

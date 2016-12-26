@@ -109,36 +109,35 @@ class CodeEditor extends React.Component {
             .filter(k => k.__diff)
             .forEach(k => k.clear());
         if(typeof this.props.compare == 'string'){
-            var changes = dmp.diff_main(this.props.value, this.props.compare);
-            dmp.diff_cleanupSemantic(changes)
 
-            // console.log(changes)
+            var changes = dmp.diff_main(this.props.compare, this.props.value);
+            dmp.diff_cleanupSemantic(changes)
 
             var offset = 0;
             for(var i = 0; i < changes.length; i++){
                 let [type, text] = changes[i];
                 if(type < 0){ // delete
+                    var thing = document.createElement('span')
+                    thing.className = 'deleted'
+                    thing.innerText = text;
+                    var mark = this.cm.setBookmark(this.cm.posFromIndex(offset), {
+                        widget: thing
+                    })
+                    mark.__diff = true;
+
+                    
+                }else if(type > 0){ // insert
                     var mark = this.cm.markText(this.cm.posFromIndex(offset), this.cm.posFromIndex(offset + text.length), {
                         className: 'inserted'
                     })
                     mark.__diff = true;
 
                     offset += text.length;
-                }else if(type > 0){ // insert
-                    var thing = document.createElement('span')
-                    thing.className = 'deleted'
-                    thing.innerText = text;
-                    var mark = this.cm.setBookmark(this.cm.posFromIndex(offset), {
-                        // className: 'inserted'
-                        widget: thing
-                    })
-                    mark.__diff = true;
                     
                 }else{
                     offset += text.length;
                 }
             }
-            // console.log(changes , dmp.diff_prettyHtml(changes))
         }
     }
     componentDidUpdate(){
@@ -295,7 +294,8 @@ function TimeSlice2(props){
         </div>
         </div>
         <div className="title-controls" style={{marginBottom: 10}}>
-            <label><input type="checkbox" checked={props.isFocused} 
+            <label disabled={props.views.length < 2}><input type="checkbox" checked={props.isFocused} 
+                disabled={props.views.length < 2}
                 onChange={e => e.target.checked ? props.setFocus() : props.clearFocus() } /> Merge</label>
 
             <div style={{float: 'right'}}>

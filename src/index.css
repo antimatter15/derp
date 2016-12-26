@@ -16,6 +16,14 @@ body {
 	margin: 20px;
 }
 
+label {
+	font-size: small;
+}
+
+label[disabled] {
+	color: gray;
+}
+
 .title {
 	font-size: large;
 	width: 100%;

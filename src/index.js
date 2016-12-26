@@ -336,7 +336,7 @@ const DEFAULT_STATE = {
             date: 0
         }
     },
-    viewIndex: 0,
+    viewIndex: -1,
     messages: {},
     views: [{
         title: 'Default',

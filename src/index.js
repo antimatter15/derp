@@ -51,7 +51,7 @@ function getCurrentChunk(store, id, views, messages){
 
     while(ch.length == 1 
         && node 
-        && !views.some(k => k.anchor == node)
+        // && !views.some(k => k.anchor == node)
         && !(messages[node])
         ){
         node = ch[0]
@@ -190,7 +190,7 @@ function DAG(props){
         while(ch.length == 1 
             && node 
             // && view.anchor != node
-            && !props.views.some(k => k.anchor == node)
+            // && !props.views.some(k => k.anchor == node)
 
             && !(props.messages[node])
             // && view.pointer != node 
@@ -289,10 +289,9 @@ function TimeSlice2(props){
 
             <div className="title-controls">
 
-            {(props.view.pointer == chunk && props.messages[chunk]) ? 
-                <button onClick={e => props.setMessage(props.view.pointer, '')}>Remove Message</button> :
-                <button onClick={e => props.setMessage(props.view.pointer, 'r' + pathIndex)}>Insert Message</button>
-            }
+            <button disabled={props.messages[props.view.pointer]} onClick={e => props.setMessage(props.view.pointer, 'r' + pathIndex)}>Split Commit</button>
+            <button disabled={!props.messages[chunk]} onClick={e => props.setMessage(chunk, '')}>Join Commit</button>
+
         </div>
         </div>
         <div className="title-controls" style={{marginBottom: 10}}>

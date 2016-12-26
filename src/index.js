@@ -91,6 +91,34 @@ class CodeEditor extends React.Component {
             tabSize: 4,
             indentUnit: 4,
             indentWithTabs: false,
+
+            extraKeys: {
+                "Cmd-Enter"(cm){
+                    cm.getAllMarks()
+                        .filter(k => k.__result)
+                        .forEach(k => k.clear());
+
+                    function log(value){
+                        var match = /\<anonymous\>:(\d+)/.exec((new Error()).stack);
+                        if(match){
+                            var line = parseInt(match[1], 10)
+                            var thing = document.createElement('span')
+                            thing.className = 'result'
+                            thing.innerText = JSON.stringify(value)
+                            var mark = cm.setBookmark({ line: line - 1, ch: 1e8 }, {
+                                widget: thing,
+                                insertLeft: true
+                            })
+                            mark.__lineText = cm.getLine(line - 1)
+                            mark.__result = true;
+                        }
+                    }
+                    eval(cm.getValue())
+                },
+                "Cmd-Z": (cm) => requestAnimationFrame(k => this.props.undo()),
+                "Shift-Cmd-Z": (cm) => requestAnimationFrame(k => this.props.redo()),
+                "Cmd-K": (cm) => requestAnimationFrame(k => this.props.fork()),
+            }
         })
         this.cm = cm;
         
@@ -98,13 +126,15 @@ class CodeEditor extends React.Component {
             if(ch.origin != 'setValue' && cm.getValue() != this.props.value){
                 this.props.onChange(cm.getValue())
             }
+            cm.getAllMarks()
+                .filter(k => k.__result && k.__lineText.trim() != cm.getLine(k.find().line).trim())
+                .forEach(k => k.clear());
             // console.log(cm.getValue(), ch)
             // this.props.onChange(cm.getValue())
         })
         this.updateDiff()
     }
     updateDiff(){
-
         this.cm.getAllMarks()
             .filter(k => k.__diff)
             .forEach(k => k.clear());
@@ -142,7 +172,11 @@ class CodeEditor extends React.Component {
     }
     componentDidUpdate(){
         if(!this.cm.curOp && this.props.value != this.cm.getValue()){
+            var selections = this.cm.getSelections()
             this.cm.setValue(this.props.value)
+            try {
+                this.cm.setSelections(selections)
+            } catch (err) {}
         }
         this.updateDiff()
     }
@@ -158,7 +192,12 @@ function Interface(props){
     return <div>
         <div>
             <CodeEditor 
-                value={state.data} 
+                value={state.data}
+                
+                undo={props.undo} 
+                redo={props.redo}
+                fork={props.fork}
+
                 compare={props.compare && props.compare.data}
                 onChange={text => props.commit({ text: text })} />
         </div>
@@ -311,7 +350,14 @@ function TimeSlice2(props){
             </div>
         </div>
 
-        <Interface state={state} compare={props.activeState} commit={commit} />
+        <Interface 
+            undo={e => (pathIndex > 0) && updatePointer(path[pathIndex - 1])}
+            redo={e => (pathIndex < path.length - 1) && updatePointer(path[pathIndex + 1])}
+            fork={e => props.fork()}
+
+            state={state} 
+            compare={props.activeState} 
+            commit={commit} />
 
         <input type="range" className="linear" min={0} max={path.length - 1} 
             disabled={path.length < 2}

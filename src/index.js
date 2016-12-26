@@ -28,8 +28,26 @@ function getPath(store, id){
     return getPath(store, commit.parent).concat([id])
 }
 
+
+var childStore = null,
+    childMapping = {};
+
 function getChildren(store, id){
-    return Object.keys(store).filter(k => store[k].parent == id);
+    // return Object.keys(store).filter(k => store[k].parent == id);
+    
+    if(store !== childStore){
+        childStore = store;
+        childMapping = {}
+        for(var k in store){
+            var parent = store[k].parent;
+            if(!childMapping[parent]){
+                childMapping[parent] = [k];
+            }else{
+                childMapping[parent].push(k)
+            }
+        }
+    }
+    return childMapping[id] || [];
 }
 
 

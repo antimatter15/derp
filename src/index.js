@@ -89,6 +89,10 @@ class CodeEditor extends React.Component {
             indentWithTabs: false,
         })
         this.cm = cm;
+        cm.on('focus', () => {
+            console.log('focus')
+            if(this.props.onFocus) this.props.onFocus();
+        })
         cm.on('change', (cm, ch) => {
             if(ch.origin != 'setValue' && cm.getValue() != this.props.value){
                 this.props.onChange(cm.getValue())
@@ -98,7 +102,7 @@ class CodeEditor extends React.Component {
         })
     }
     componentDidUpdate(){
-        if(!this.cm.curOp){
+        if(!this.cm.curOp && this.props.value != this.cm.getValue()){
             this.cm.setValue(this.props.value)
         }
     }
@@ -113,8 +117,10 @@ function Interface(props){
     }
     return <div>
         <div>
-            <CodeEditor value={state.data} onChange={text => 
-                props.commit({ text: text })} />
+            <CodeEditor 
+                value={state.data} 
+                onFocus={props.onFocus} 
+                onChange={text => props.commit({ text: text })} />
         </div>
     </div>
 }
@@ -235,7 +241,7 @@ function TimeSlice2(props){
     var chunk = getCurrentChunk(props.store, props.view.pointer, props.views, props.messages);
 
 
-    return <div className="artboard">
+    return <div className={"artboard" + (props.isFocused ? ' focused': '')}>
         <div className="titlebar">
             <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(type message)" 
                 onChange={e => props.setMessage(chunk, e.target.value) }/>
@@ -258,7 +264,7 @@ function TimeSlice2(props){
                 <button onClick={e => props.close()}>&times;</button>
             </div>
         </div>
-        <Interface state={state} commit={commit} />
+        <Interface state={state} commit={commit} onFocus={props.setFocus} />
 
         <input type="range" className="linear" min={0} max={path.length - 1} 
             disabled={path.length < 2}
@@ -283,6 +289,7 @@ const DEFAULT_STATE = {
             date: 0
         }
     },
+    viewIndex: 0,
     messages: {},
     views: [{
         title: 'Default',
@@ -319,6 +326,9 @@ class StateKeeper extends React.Component {
                         view={view}
                         views={views}
                         messages={this.state.messages}
+
+                        isFocused={this.state.viewIndex == index}
+                        setFocus={() => this.setState({ viewIndex: index })}
 
                         setMessage={(id, message) => this.setState({ messages: 
                             Object.assign({}, this.state.messages, { [id]: message })})}

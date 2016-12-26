@@ -61,6 +61,10 @@ rect.mainline {
     flex-shrink: 1;
 }
 
+.artboard.focused {
+	border-color: #bf96bf;
+}
+
 rect.inactive {
 	fill: #bbb;
 }
@@ -93,7 +97,7 @@ text {
 .title-controls {
 	white-space: nowrap;
 }
-	
+
 line.mainline {
 	stroke: black;
 	stroke-width: 2;

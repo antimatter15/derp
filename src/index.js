@@ -320,6 +320,13 @@ function TimeSlice2(props){
     var chunk = getCurrentChunk(props.store, props.view.pointer, props.views, props.messages);
 
 
+    var fork = () => {
+        props.fork()
+        if(!props.messages[props.view.pointer]){
+            props.setMessage(props.view.pointer, 'r' + pathIndex)
+        }
+    }
+
     return <div className={"artboard" + (props.isFocused ? ' focused': '')}>
         <div className="titlebar">
             <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(type message)" 
@@ -344,7 +351,7 @@ function TimeSlice2(props){
             <button 
                 disabled={pathIndex >= path.length - 1}
                 onClick={e => updatePointer(path[pathIndex + 1])}>↻</button>
-            <button onClick={e => props.fork()}>Fork</button>
+            <button onClick={e => fork()}>Fork</button>
             
             <button disabled={props.views.length == 1} onClick={e => props.close()}>&times;</button>
             </div>
@@ -353,7 +360,7 @@ function TimeSlice2(props){
         <Interface 
             undo={e => (pathIndex > 0) && updatePointer(path[pathIndex - 1])}
             redo={e => (pathIndex < path.length - 1) && updatePointer(path[pathIndex + 1])}
-            fork={e => props.fork()}
+            fork={e => fork()}
 
             state={state} 
             compare={props.activeState} 

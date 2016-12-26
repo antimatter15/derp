@@ -50,6 +50,16 @@ rect.mainline {
 	margin-bottom: 10px;
 }
 
+.deleted {
+    color: #b30000;
+    background: #fadad7;
+}
+
+.inserted {
+	background: #eaf2c2;
+    color: #406619;
+}
+
 .artboard {
     border: 1px solid #dddddd;
     border-radius: 3px;

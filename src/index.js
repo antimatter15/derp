@@ -70,6 +70,10 @@ import "codemirror/addon/edit/closebrackets"
 import 'codemirror/addon/edit/matchbrackets'
 import "codemirror/addon/comment/comment"
 
+var DiffMatchPatch = require('diff-match-patch');
+var dmp = new DiffMatchPatch();
+global.dmp = dmp
+
 class CodeEditor extends React.Component {
     componentDidMount(){
         var el = ReactDOM.findDOMNode(this);
@@ -89,10 +93,7 @@ class CodeEditor extends React.Component {
             indentWithTabs: false,
         })
         this.cm = cm;
-        cm.on('focus', () => {
-            console.log('focus')
-            if(this.props.onFocus) this.props.onFocus();
-        })
+        
         cm.on('change', (cm, ch) => {
             if(ch.origin != 'setValue' && cm.getValue() != this.props.value){
                 this.props.onChange(cm.getValue())
@@ -100,11 +101,51 @@ class CodeEditor extends React.Component {
             // console.log(cm.getValue(), ch)
             // this.props.onChange(cm.getValue())
         })
+        this.updateDiff()
+    }
+    updateDiff(){
+
+        this.cm.getAllMarks()
+            .filter(k => k.__diff)
+            .forEach(k => k.clear());
+        if(typeof this.props.compare == 'string'){
+            var changes = dmp.diff_main(this.props.value, this.props.compare);
+            dmp.diff_cleanupSemantic(changes)
+
+            // console.log(changes)
+
+            var offset = 0;
+            for(var i = 0; i < changes.length; i++){
+                let [type, text] = changes[i];
+                if(type < 0){ // delete
+                    var mark = this.cm.markText(this.cm.posFromIndex(offset), this.cm.posFromIndex(offset + text.length), {
+                        className: 'inserted'
+                    })
+                    mark.__diff = true;
+
+                    offset += text.length;
+                }else if(type > 0){ // insert
+                    var thing = document.createElement('span')
+                    thing.className = 'deleted'
+                    thing.innerText = text;
+                    var mark = this.cm.setBookmark(this.cm.posFromIndex(offset), {
+                        // className: 'inserted'
+                        widget: thing
+                    })
+                    mark.__diff = true;
+                    
+                }else{
+                    offset += text.length;
+                }
+            }
+            // console.log(changes , dmp.diff_prettyHtml(changes))
+        }
     }
     componentDidUpdate(){
         if(!this.cm.curOp && this.props.value != this.cm.getValue()){
             this.cm.setValue(this.props.value)
         }
+        this.updateDiff()
     }
     render(){ return <div className="editor" /> }
 }
@@ -119,7 +160,7 @@ function Interface(props){
         <div>
             <CodeEditor 
                 value={state.data} 
-                onFocus={props.onFocus} 
+                compare={props.compare && props.compare.data}
                 onChange={text => props.commit({ text: text })} />
         </div>
     </div>
@@ -245,26 +286,33 @@ function TimeSlice2(props){
         <div className="titlebar">
             <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(type message)" 
                 onChange={e => props.setMessage(chunk, e.target.value) }/>
+
             <div className="title-controls">
 
-                {(props.view.pointer == chunk && props.messages[chunk]) ? 
-                    <button onClick={e => props.setMessage(props.view.pointer, '')}>Remove Message</button> :
-                    <button onClick={e => props.setMessage(props.view.pointer, 'r' + pathIndex)}>Insert Message</button>
-                }
+            {(props.view.pointer == chunk && props.messages[chunk]) ? 
+                <button onClick={e => props.setMessage(props.view.pointer, '')}>Remove Message</button> :
+                <button onClick={e => props.setMessage(props.view.pointer, 'r' + pathIndex)}>Insert Message</button>
+            }
+        </div>
+        </div>
+        <div className="title-controls" style={{marginBottom: 10}}>
+            <label><input type="checkbox" checked={props.isFocused} 
+                onChange={e => e.target.checked ? props.setFocus() : props.clearFocus() } /> Merge</label>
 
-                <button 
-                    disabled={pathIndex <= 0}
-                    onClick={e => updatePointer(path[pathIndex - 1])}>↺</button>
-                <button 
-                    disabled={pathIndex >= path.length - 1}
-                    onClick={e => updatePointer(path[pathIndex + 1])}>↻</button>
-                <button onClick={e => props.fork()}>Fork</button>
-                
-
-                <button disabled={props.views.length == 1} onClick={e => props.close()}>&times;</button>
+            <div style={{float: 'right'}}>
+            <button 
+                disabled={pathIndex <= 0}
+                onClick={e => updatePointer(path[pathIndex - 1])}>↺</button>
+            <button 
+                disabled={pathIndex >= path.length - 1}
+                onClick={e => updatePointer(path[pathIndex + 1])}>↻</button>
+            <button onClick={e => props.fork()}>Fork</button>
+            
+            <button disabled={props.views.length == 1} onClick={e => props.close()}>&times;</button>
             </div>
         </div>
-        <Interface state={state} commit={commit} onFocus={props.setFocus} />
+
+        <Interface state={state} compare={props.activeState} commit={commit} />
 
         <input type="range" className="linear" min={0} max={path.length - 1} 
             disabled={path.length < 2}
@@ -316,6 +364,12 @@ class StateKeeper extends React.Component {
     }
     render(){
         var views = this.state.views;
+        var activeState;
+
+        if(views[this.state.viewIndex]){
+            activeState = getState(this.state.store, views[this.state.viewIndex].pointer)
+        }
+
         return <div>
             <div className="container">{
                 views.map((view, index) => 
@@ -327,8 +381,10 @@ class StateKeeper extends React.Component {
                         views={views}
                         messages={this.state.messages}
 
+                        activeState={activeState}
                         isFocused={this.state.viewIndex == index}
                         setFocus={() => this.setState({ viewIndex: index })}
+                        clearFocus={() => this.setState({ viewIndex: -1 })}
 
                         setMessage={(id, message) => this.setState({ messages: 
                             Object.assign({}, this.state.messages, { [id]: message })})}

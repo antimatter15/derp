@@ -137,6 +137,19 @@ line.inactive {
 	stroke-width: 1;
 }
 
+
+path.mainline {
+	stroke: black;
+	stroke-width: 2;
+	fill: none;
+}
+
+path.inactive {
+	stroke: #bbb;
+	stroke-width: 1;
+	fill: none;
+}
+
 svg.dag {
 	width: 100%;
 	margin-top: 10px;

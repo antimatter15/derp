@@ -231,7 +231,7 @@ function DAG(props){
         view = props.view,
         messages = props.messages;
 
-    const v_spacing = 30;
+    const v_spacing = 25;
     const v_height = 20;
 
     const h_spacing = 10;
@@ -292,9 +292,13 @@ function DAG(props){
             var child = ch[i]
             if(i > 0) y1 += v_spacing;
 
-            if(node) lines.push(<line 
-                x1={x} y1={y} 
-                x2={x + h_spacing} y2={y1}
+            // if(node) lines.push(<line 
+            //     x1={x} y1={y} 
+            //     x2={x + h_spacing} y2={y1}
+            //     className={path.includes(child) ? 'mainline' : 'inactive'} />)
+
+            if(node) lines.push(<path 
+                d={curvedHorizontal(x,y,x + h_spacing,y1)}
                 className={path.includes(child) ? 'mainline' : 'inactive'} />)
             y1 = recursive(child, x + h_spacing, y1);
             
@@ -306,6 +310,17 @@ function DAG(props){
     return <svg className="dag" height={height}>{lines}{elements}</svg>
 }
 
+
+// https://github.com/hughsk/svg-line-curved/blob/master/index.js
+function curvedHorizontal(x1, y1, x2, y2) {
+    var line = []
+    var mx = x1 + (x2 - x1) / 2
+
+    line.push('M', x1, y1)
+    line.push('C', mx, y1, mx, y2, x2, y2)
+
+    return line.join(' ')
+}
 
 
 function TimeSlice2(props){

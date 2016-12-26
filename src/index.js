@@ -34,7 +34,7 @@ var childStore = null,
 
 function getChildren(store, id){
     // return Object.keys(store).filter(k => store[k].parent == id);
-    
+
     if(store !== childStore){
         childStore = store;
         childMapping = {}
@@ -136,6 +136,7 @@ class CodeEditor extends React.Component {
                 "Cmd-Z": (cm) => requestAnimationFrame(k => this.props.undo()),
                 "Shift-Cmd-Z": (cm) => requestAnimationFrame(k => this.props.redo()),
                 "Cmd-K": (cm) => requestAnimationFrame(k => this.props.fork()),
+                "Cmd-S": (cm) => requestAnimationFrame(k => this.props.save()),
             }
         })
         this.cm = cm;
@@ -215,6 +216,7 @@ function Interface(props){
                 undo={props.undo} 
                 redo={props.redo}
                 fork={props.fork}
+                save={props.save}
 
                 compare={props.compare && props.compare.data}
                 onChange={text => props.commit({ text: text })} />
@@ -345,6 +347,12 @@ function TimeSlice2(props){
         }
     }
 
+    var save = () => {
+        if(!props.messages[props.view.pointer]){
+            props.setMessage(props.view.pointer, 'r' + pathIndex)
+        }
+    }
+
     return <div className={"artboard" + (props.isFocused ? ' focused': '')}>
         <div className="titlebar">
             <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(type message)" 
@@ -379,6 +387,7 @@ function TimeSlice2(props){
             undo={e => (pathIndex > 0) && updatePointer(path[pathIndex - 1])}
             redo={e => (pathIndex < path.length - 1) && updatePointer(path[pathIndex + 1])}
             fork={e => fork()}
+            save={e => save()}
 
             state={state} 
             compare={props.activeState} 

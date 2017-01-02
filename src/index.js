@@ -379,7 +379,7 @@ function Artboard(props){
 
             <div className="title-controls">
                 <button disabled={props.messages[props.view.pointer]} onClick={e => props.setMessage(props.view.pointer, 'r' + pathIndex)}>Split Commit</button>
-                <button disabled={!props.messages[chunk]} onClick={e => props.setMessage(chunk, '')}>Join Commit</button>
+                <button disabled={!props.messages[chunk]} onClick={e => props.setMessage(chunk, '')}>Join Commits</button>
             </div>
         </div>
         <div className="title-controls" style={{marginBottom: 10}}>
@@ -441,6 +441,7 @@ const DEFAULT_STATE = {
         anchor: '0'
     }]
 };
+
 
 
 

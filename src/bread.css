@@ -1,0 +1,196 @@
+body {
+	font-family: sans-serif;
+}
+
+.row-1 {
+  max-width: 70vw;
+  margin-left: auto;
+  margin-right: auto;
+}
+.main-header {
+    /* margin: 0 20px; */
+    max-width: 70vw;
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 10px;
+}
+.bread {
+	/*border: 1px solid gray;*/
+	padding: 10px;
+}
+
+.row > * {
+	/*border: 1px solid gray;
+	padding: 10px;
+	margin: 10px;*/
+	display: flex;
+	
+}
+.row {
+
+  border-bottom: 5px solid transparent;
+}
+.row:first-child {
+	border-top: 5px solid transparent;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+.col {
+	flex-basis: 0;
+	flex-grow: 1;
+	border-right: 5px solid transparent;
+	padding: 5px;
+  overflow: hidden;
+}
+.col:first-child {
+
+	border-left: 5px solid transparent;
+}
+
+.slice {
+    border: 1px solid #d8d8d8;
+    border-radius: 2px;
+    min-height: 170px;
+    box-shadow: 1px 2px 14px rgba(0, 0, 0, 0.17);
+    transition: opacity 200ms ease-in;
+    margin-right: auto;
+    margin-left: auto;
+    min-width: 200px;
+}
+
+.slice.dragging {
+    opacity: 0.4;
+}
+
+.slice .body {
+	padding: 10px;
+
+}
+
+.slice .header {
+    padding: 10px;
+    /* color: white; */
+    background: #efefef;
+    border-bottom: 1px solid #d8d8d8;
+    cursor: pointer;
+
+
+}
+
+.fake-slice {
+  border: 2px dashed #d8d8d8;
+  border-radius: 2px;
+  min-height: 30px;
+  padding-bottom: 20px;
+  text-align: center;
+  font-size: 100px;
+  color: #d8d8d8;
+  -webkit-user-select: none;
+  cursor: pointer;
+
+  transition: all 200ms ease-in;
+}
+
+.fake-slice:hover {
+  border: 2px dashed gray;
+  color: gray;
+}
+
+.slice .header .button {
+    float: right;
+    /* border: 1px solid #d8d8d8; */
+    border-radius: 3px;
+    /* background: white; */
+    font-size: 17px;
+    margin: 0 3px;
+    display: inline-block;
+    top: -3px;
+    position: relative;
+    cursor: pointer;
+    right: -6px;
+    padding: 2px 5px;
+    color: gray;
+}
+
+.slice .header .button:hover {
+  color: black;
+}
+
+.row.insert-top {
+  border-top: 5px solid orange; 
+}
+
+.row.insert-bottom {
+  border-bottom: 5px solid orange; 
+}
+
+.col.insert-left {
+  border-left: 5px solid orange; 
+}
+
+.col.insert-right {
+  border-right: 5px solid orange; 
+}
+
+
+
+
+.example-enter {
+  /* 0 does not work so we have to use a small number */
+  /* Start our small */
+  flex: .00001;
+
+  -webkit-animation: flexGrow 300ms ease forwards;
+  -o-animation: flexGrow 300ms ease forwards;
+  animation: flexGrow 300ms ease forwards;
+}
+
+
+.example-leave {
+  flex: 1;
+
+  -webkit-animation: flexShrink 300ms ease forwards;
+  -o-animation: flexShrink 300ms ease forwards;
+  animation: flexShrink 300ms ease forwards;
+}
+
+
+@-webkit-keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+@-o-keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+@keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+
+@-webkit-keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
+}
+@-o-keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
+}
+@keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
+}

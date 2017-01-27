@@ -8,6 +8,26 @@ import './bread.css';
 import 'font-awesome/css/font-awesome.css';
 
 
+class Slice extends React.Component {
+	render(){
+		return <div className={"slice " + (this.props.isDragging ? 'dragging' : '')}>
+			<div className="header" onMouseDown={this.props.beginDrag}>
+				{this.props.thing.id}
+				<div className="button" onClick={this.props.close}>
+					<i className="fa fa-close" aria-hidden="true" /></div>
+				<div className="button" onClick={this.props.fork}>
+					<i className="fa fa-code-fork" aria-hidden="true" /></div>
+
+			</div>
+			<div className="body">
+				<pre>{JSON.stringify(this.props.thing)}</pre>
+
+				<textarea value={this.props.thing.wumbo || ''} onChange={e => this.props.update({ wumbo: e.target.value }) } />
+			</div>
+		</div>
+	}
+}
+
 
 function sqr(x) { return x * x }
 function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
@@ -26,7 +46,7 @@ function uuid(){
 }
 
 
-export default class Bread extends React.Component {
+class Bread extends React.Component {
 	constructor(){
 		super()
 		this.state = {
@@ -181,7 +201,10 @@ export default class Bread extends React.Component {
 	}
 
 	render(){
-		var Slice = this.props.Slice;
+		var drag = {
+			begin: this.beginDrag.bind(this),
+			thing: this.state.dragThing
+		}
 		return <div className="bread" style={{ cursor: this.state.dragThing ? 'move' : 'default' }}>
 		<FlipMove>
 		{this.state.rows.map((row, rowi) => 
@@ -200,15 +223,8 @@ export default class Bread extends React.Component {
 					(this.state.activeRow === ('left-' + rowi + '-' + coli) ? 'insert-left ' : '') +
 					(this.state.activeRow === ('right-' + rowi + '-' + coli) ? 'insert-right ' : '')
 				)} key={data.id}>
-					<Slice view={data} 
+					<Slice thing={data} 
 					isDragging={this.state.dragThing === [rowi, coli].join('-')}
-					getView={id => {
-						var result;
-						this.state.rows.forEach(row => row.elements.forEach(data => {
-							if(data.id == id) result = data;
-						}))
-						return result;
-					}}
 					fork={e => {
 						var newRows = JSON.parse(JSON.stringify(this.state.rows));
 						newRows[rowi].elements.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
@@ -226,8 +242,7 @@ export default class Bread extends React.Component {
 					}}
 					beginDrag={
 						e => this.beginDrag([rowi, coli].join('-'), e)
-					} 
-					{...this.props} />
+					} />
 				</div>
 			)}
 			</ReactCSSTransitionGroup>
@@ -249,5 +264,13 @@ export default class Bread extends React.Component {
 	}
 }
 
+export default function App(){
 
 
+	return <div>
+		<div className="main-header">
+			<h1>notebook layout</h1>
+		</div>
+		<Bread />
+	</div>
+}

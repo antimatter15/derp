@@ -1,0 +1,62 @@
+
+svg.measure {
+	position: absolute;
+	left: -1000px;
+	top: -1000px;
+}
+
+
+circle.active {
+	fill: white;
+}
+
+
+
+rect.inactive {
+	fill: #bbb;
+}
+
+rect.active {
+	fill: red;
+}
+
+.genesis {
+	fill: black;
+}
+
+
+text {
+    alignment-baseline: central;
+    fill: white;
+    font-size: small;
+    pointer-events: none;
+    -webkit-user-select: none;
+}
+
+
+line.mainline {
+	stroke: black;
+	stroke-width: 2;
+}
+
+line.inactive {
+	stroke: #bbb;
+	stroke-width: 1;
+}
+
+
+path.mainline {
+	stroke: black;
+	stroke-width: 2;
+	fill: none;
+}
+
+path.inactive {
+	stroke: #bbb;
+	stroke-width: 1;
+	fill: none;
+}
+
+svg.dag {
+	width: 100%;
+}

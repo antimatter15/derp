@@ -21,7 +21,7 @@ body {
     border: 1px solid #d8d8d8;
     border-radius: 2px;
     min-height: 100px;
-    box-shadow: 1px 2px 14px rgba(0, 0, 0, 0.17);
+    box-shadow: 1px 2px 7px rgba(0, 0, 0, 0.17);
     transition: opacity 200ms ease-in;
     margin-right: auto;
     margin-left: auto;
@@ -128,9 +128,30 @@ body {
     color: #406619;
 }
 
+.line-inserted {
+    background: #c9f1c9;
+}
+
+.line-changed {
+    background: #ffffbb;
+}
+
+
+.line-removed {
+    background: #ffd7d7;
+    padding: 0 10px;
+}
+
+
+span.result {
+    background: #dedede;
+    padding: 0 4px;
+    margin: 0 5px;
+    border-radius: 2px;
+}
 
 .slice.reference {
-    box-shadow: 1px 2px 14px rgba(94, 8, 148, 0.27);
+    box-shadow: 1px 2px 7px rgba(94, 8, 148, 0.27);
 }
 
 .slice.reference .header {

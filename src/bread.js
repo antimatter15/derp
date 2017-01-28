@@ -120,21 +120,28 @@ export default class Bread extends React.Component {
 
 
 		// console.log(i)
-		if(this.state.activeRow !== i){
+		if(this.state.dockTarget !== i){
 			this.setState({
-				activeRow: closestPos
+				dockTarget: closestPos
 			})	
 		}
 		
 		// console.log('moving', e, )
 	}
+	cloneLayout(){
+		return {
+			rows: this.props.layout.rows.map(row => {
+				return { id: row.id, elements: row.elements.slice(0) }
+			})
+		}
+	}
 	mouseUp(e){
-		var nextRows = this.state.rows;
-		if(this.state.activeRow){
-			var pos = this.state.activeRow.split('-');
+		
+		if(this.state.dockTarget){
+			var pos = this.state.dockTarget.split('-');
 			var thing = this.state.dragThing.split('-');
 
-			nextRows = JSON.parse(JSON.stringify(this.state.rows));
+			var nextRows = this.cloneLayout().rows;
 			
 
 			if(pos[0] === 'top' || pos[0] === 'bottom'){
@@ -167,15 +174,17 @@ export default class Bread extends React.Component {
 			}
 
 			nextRows = nextRows.filter(k => k.elements.length > 0)
+
+			this.props.updateLayout({ rows: nextRows })
 		}
 
 
 
 		this.setState({
 			dragThing: null,
-			activeRow: null,
-			rows: nextRows
+			dockTarget: null
 		})
+
 		window.removeEventListener('mousemove', this.mouseMove)
 		window.removeEventListener('mouseup', this.mouseUp)
 	}
@@ -184,10 +193,10 @@ export default class Bread extends React.Component {
 		var Slice = this.props.Slice;
 		return <div className="bread" style={{ cursor: this.state.dragThing ? 'move' : 'default' }}>
 		<FlipMove>
-		{this.state.rows.map((row, rowi) => 
+		{this.props.layout.rows.map((row, rowi) => 
 			<div className={"row " + (
-				(this.state.activeRow === ('top-' + rowi) ? 'insert-top ' : '') +
-				(this.state.activeRow === ('bottom-' + rowi) ? 'insert-bottom ' : '') +
+				(this.state.dockTarget === ('top-' + rowi) ? 'insert-top ' : '') +
+				(this.state.dockTarget === ('bottom-' + rowi) ? 'insert-bottom ' : '') +
 				('row-' + row.elements.length + ' ')
 			)} key={row.id}>
 			<ReactCSSTransitionGroup
@@ -197,32 +206,32 @@ export default class Bread extends React.Component {
 
 			{row.elements.map((data, coli) => 
 				<div className={"col " + (
-					(this.state.activeRow === ('left-' + rowi + '-' + coli) ? 'insert-left ' : '') +
-					(this.state.activeRow === ('right-' + rowi + '-' + coli) ? 'insert-right ' : '')
+					(this.state.dockTarget === ('left-' + rowi + '-' + coli) ? 'insert-left ' : '') +
+					(this.state.dockTarget === ('right-' + rowi + '-' + coli) ? 'insert-right ' : '')
 				)} key={data.id}>
 					<Slice view={data} 
 					isDragging={this.state.dragThing === [rowi, coli].join('-')}
 					getView={id => {
 						var result;
-						this.state.rows.forEach(row => row.elements.forEach(data => {
+						this.props.layout.rows.forEach(row => row.elements.forEach(data => {
 							if(data.id == id) result = data;
 						}))
 						return result;
 					}}
 					fork={e => {
-						var newRows = JSON.parse(JSON.stringify(this.state.rows));
+						var newRows = this.cloneLayout().rows;
 						newRows[rowi].elements.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
-						this.setState({ rows: newRows })
+						this.props.updateLayout({ rows: newRows })
 					}}
 					update={e => {
-						var newRows = JSON.parse(JSON.stringify(this.state.rows));
+						var newRows = this.cloneLayout().rows;
 						newRows[rowi].elements[coli] = Object.assign({}, data, e)
-						this.setState({ rows: newRows })
+						this.props.updateLayout({ rows: newRows })
 					}}
 					close={e => {
-						var newRows = JSON.parse(JSON.stringify(this.state.rows));
+						var newRows = this.cloneLayout().rows;
 						newRows[rowi].elements.splice(coli, 1)
-						this.setState({ rows: newRows.filter(k => k.elements.length > 0) })
+						this.props.updateLayout({ rows: newRows.filter(k => k.elements.length > 0) })
 					}}
 					beginDrag={
 						e => this.beginDrag([rowi, coli].join('-'), e)
@@ -234,9 +243,10 @@ export default class Bread extends React.Component {
 			</div>
 		)}
 
-		<div className="fake-row row-1" onClick={e => this.setState({ rows: 
-			this.state.rows.concat([{ id: uuid(), elements: [{ id: uuid() }] }])
-		})}>
+		<div className="fake-row row-1" onClick={e => 
+			this.props.updateLayout({ rows: 
+				this.props.layout.rows.concat([{ id: uuid(), elements: [{ id: uuid() }] }])
+			})}>
 			<span>
 				<div className="col">
 					<div className="fake-slice">+</div>

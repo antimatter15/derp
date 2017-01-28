@@ -15,6 +15,9 @@ var DiffMatchPatch = require('diff-match-patch');
 var dmp = new DiffMatchPatch();
 global.dmp = dmp
 
+var JsDiff = require('diff');
+
+
 class CodeEditor extends React.Component {
     componentDidMount(){
         var el = ReactDOM.findDOMNode(this);
@@ -78,37 +81,154 @@ class CodeEditor extends React.Component {
         this.updateDiff()
     }
     updateDiff(){
-        this.cm.getAllMarks()
+
+        var cm = this.cm;
+        cm.getAllMarks()
             .filter(k => k.__diff)
             .forEach(k => k.clear());
+        if(cm.lineWidgets) cm.lineWidgets.forEach(k => k.clear());
+        cm.lineWidgets = []
+        cm.eachLine(line => {
+            cm.removeLineClass(line, 'background', 'line-inserted')
+            cm.removeLineClass(line, 'background', 'line-changed')
+        })
+
         if(typeof this.props.compare === 'string'){
-
-            var changes = dmp.diff_main(this.props.compare, this.props.value);
-            dmp.diff_cleanupSemantic(changes)
-
+            var diff = JsDiff.diffTrimmedLines(this.props.compare, this.props.value)
             var offset = 0;
-            for(var i = 0; i < changes.length; i++){
-                let [type, text] = changes[i];
-                if(type < 0){ // delete
-                    let thing = document.createElement('span')
-                    thing.className = 'deleted'
-                    thing.innerText = text;
-                    let mark = this.cm.setBookmark(this.cm.posFromIndex(offset), {
-                        widget: thing
+            for(var i = 0; i < diff.length; i++){
+                let { changed, added, removed, value, count } = diff[i];
+                if(removed){
+                    var node = document.createElement('div')
+                    node.innerText = value;
+                    node.className = 'line-removed'
+                    this.cm.lineWidgets.push(cm.addLineWidget(offset, node, {
+                        above: true
+                    }))
+                }else if(added){
+                    cm.eachLine(offset, offset + count, line => {
+                        cm.addLineClass(line, 'background', 'line-inserted')
                     })
-                    mark.__diff = true;
-                }else if(type > 0){ // insert
-                    let mark = this.cm.markText(this.cm.posFromIndex(offset), this.cm.posFromIndex(offset + text.length), {
-                        className: 'inserted'
-                    })
-                    mark.__diff = true;
-
-                    offset += text.length;
-                    
+                    offset += count
                 }else{
-                    offset += text.length;
+                    offset += count
                 }
             }
+
+
+            // for(var i = 1; i < diff.length; i++){
+            //     if(diff[i-1].removed && diff[i].added){
+            //         let added = diff[i].count
+            //         let removed = diff[i-1].count
+            //         var changed = Math.min(added, removed);
+            //         if(changed > 0){
+            //             diff.splice(i - 1, 2,
+            //                 { removed: true, count: removed - changed, 
+            //                     // value: diff[i-1].value.split('\n').slice(-(removed - changed + 1)).join('\n') },
+
+            //                     value: diff[i-1].value.split('\n').slice(0, removed - changed).join('\n') },
+            //                 { 
+            //                     changed: true, 
+            //                     count: changed,
+            //                     value: diff[i-1].value.split('\n').slice(removed - changed).join('\n'),
+
+            //                     // value: diff[i].value.split('\n').slice(added-changed, added).join('\n')
+            //                 },
+            //                 { added: true, count: added - changed }
+            //             )
+            //             i++;
+            //         }
+            //     }
+            // }
+
+            // diff = diff.filter(k => k.count > 0);
+
+            // console.log('changed', diff)
+
+            // var offset = 0;
+            // for(var i = 0; i < diff.length; i++){
+            //     let { changed, added, removed, value, count } = diff[i];
+            //     if(removed){
+            //         var node = document.createElement('div')
+            //         node.innerText = value;
+            //         node.className = 'line-removed'
+            //         this.cm.lineWidgets.push(cm.addLineWidget(offset, node, {
+            //             above: true
+            //         }))
+            //     }else if(changed){
+            //         var oldValue = cm.getRange({ line: offset, ch: 0 }, { line: offset + count, ch: 0 });
+            //         var changes = dmp.diff_main(value, oldValue);
+            //         dmp.diff_cleanupSemantic(changes)
+
+            //         console.log(JSON.stringify(oldValue), JSON.stringify(value))
+
+
+            //         cm.eachLine(offset, offset + count, line => {
+            //             cm.addLineClass(line, 'background', 'line-changed')
+            //         })
+
+
+            //         var choffset = cm.indexFromPos({ line: offset, ch: 0 });
+            //         for(var j = 0; j < changes.length; j++){
+            //             let [type, text] = changes[j];
+            //             if(type < 0){ // delete
+            //                 let thing = document.createElement('span')
+            //                 thing.className = 'deleted'
+            //                 thing.innerText = text;
+            //                 let mark = cm.setBookmark(cm.posFromIndex(choffset), {
+            //                     widget: thing
+            //                 })
+            //                 mark.__diff = true;
+            //             }else if(type > 0){ // insert
+            //                 let mark = cm.markText(cm.posFromIndex(choffset), cm.posFromIndex(choffset + text.length), {
+            //                     className: 'inserted'
+            //                 })
+            //                 mark.__diff = true;
+
+            //                 choffset += text.length;
+                            
+            //             }else{
+            //                 choffset += text.length;
+            //             }
+            //         }
+
+            //         offset += count
+            //     }else if(added){
+            //         cm.eachLine(offset, offset + count, line => {
+            //             cm.addLineClass(line, 'background', 'line-inserted')
+            //         })
+            //         offset += count
+            //     }else{
+            //         offset += count
+            //     }
+            // }
+
+            // var changes = dmp.diff_main(this.props.compare, this.props.value);
+            // dmp.diff_cleanupSemantic(changes)
+
+            // var offset = 0;
+            // for(var i = 0; i < changes.length; i++){
+            //     let [type, text] = changes[i];
+            //     if(type < 0){ // delete
+            //         let thing = document.createElement('span')
+            //         thing.className = 'deleted'
+            //         thing.innerText = text;
+            //         let mark = this.cm.setBookmark(this.cm.posFromIndex(offset), {
+            //             widget: thing
+            //         })
+            //         mark.__diff = true;
+            //     }else if(type > 0){ // insert
+            //         let mark = this.cm.markText(this.cm.posFromIndex(offset), this.cm.posFromIndex(offset + text.length), {
+            //             className: 'inserted'
+            //         })
+            //         mark.__diff = true;
+
+            //         offset += text.length;
+                    
+            //     }else{
+            //         offset += text.length;
+            //     }
+            // }
         }
     }
     componentDidUpdate(){

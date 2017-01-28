@@ -260,7 +260,7 @@ function Slice(props){
 
             <div className={"button " + (props.viewIndex == props.view.id ? 'active' : 'inactive')} 
                 onClick={e => props.toggleFocus(props.view.id)}>
-                <i className="fa fa-compress" aria-hidden="true" /></div>
+                <i className="fa fa-exchange" aria-hidden="true" /></div>
 
             <div className={"button " + (props.view.showFooter?'active':'inactive')} 
                 onClick={e => props.update({ showFooter: !props.view.showFooter })}>
@@ -311,10 +311,17 @@ class App extends React.Component {
         this.state = {
             store: {
             },
-            messages: {},
+            messages: {
+                null: 'blank'
+            },
+            layout: {
+                rows: []
+            }
         }
     }
     render(){
+        global.App = this;
+        
         return <div>
             <div className="main-header">
                 <h1>derp notebook</h1>
@@ -322,6 +329,9 @@ class App extends React.Component {
             <Bread 
                 Slice={Slice} 
                 
+                layout={this.state.layout}
+                updateLayout={data => this.setState({ layout: data })}
+
                 store={this.state.store}
                 messages={this.state.messages}
                 viewIndex={this.state.viewIndex}

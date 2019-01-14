@@ -255,13 +255,14 @@ function Slice(props){
     return <div className={"slice " + (props.isDragging ? 'dragging ' : '') + (props.viewIndex == props.view.id ? 'reference ' : '')}>
         <div className="header" onMouseDown={props.beginDrag}>
             <div className={"button-toggle " + (props.view.hideFooter?'inactive':'active')} 
+                title="Toggle revision timeline"
                 onClick={e => props.update({ hideFooter: !props.view.hideFooter })}>
                 {props.view.hideFooter ? "▼" : '▲'}</div>
 
             <input 
                 type="text" 
                 className="title" value={props.messages[chunk] || ''} 
-                placeholder="(no commit message)" 
+                placeholder="no description" 
                 onChange={e => props.setMessage(chunk, e.target.value) } 
                 onKeyDown={e => {
                     if(e.keyCode === 13){
@@ -272,15 +273,18 @@ function Slice(props){
 
             
             <div className={"button " + (props.viewIndex == props.view.id ? 'active' : 'inactive')} 
-                onClick={e => props.toggleFocus(props.view.id)}>
-                <i className="fa fa-compress" aria-hidden="true" /></div>
+                onClick={e => props.toggleFocus(props.view.id)}
+                title="Show differences relative to this version.">
+                <i className="fa fa-bullseye" aria-hidden="true" /></div>
 
             
 
-            <div className="button" onClick={fork}>
+            <div className="button" onClick={fork}
+                title="Fork this revision">
                 <i className="fa fa-code-fork" aria-hidden="true" /></div>
 
-            <div className="button" onClick={props.close}>
+            <div className="button" onClick={props.close}
+                title="Close this window">
                 <i className="fa fa-close" aria-hidden="true" /></div>
 
 

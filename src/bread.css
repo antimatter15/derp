@@ -17,11 +17,11 @@
 
 
 .row.insert-top {
-  border-top: 5px solid orange; 
+  border-top: 5px solid purple; 
 }
 
 .row.insert-bottom {
-  border-bottom: 5px solid orange; 
+  border-bottom: 5px solid purple; 
 }
 
 
@@ -38,11 +38,11 @@
 
 
 .col.insert-left {
-  border-left: 5px solid orange; 
+  border-left: 5px solid purple; 
 }
 
 .col.insert-right {
-  border-right: 5px solid orange; 
+  border-right: 5px solid purple; 
 }
 
 

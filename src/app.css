@@ -112,13 +112,15 @@ h1 {
     color: purple;
 }
 
-.title {
+.slice .header .title {
     font-size: medium;
     width: 100%;
     border: none;
     background: transparent;
     outline: none;
 }
+
+.slice .header ::-webkit-input-placeholder { font-style: italic; }
 
 
 

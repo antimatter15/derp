@@ -130,7 +130,7 @@ export default function DAG(props){
                 rx={2} ry={2}
                 width={rect_width} height={v_height} className={trail.includes(view.pointer) ? 'active' : (
                     path.includes(node) ? 'mainline' : 'inactive') }
-                onClick={e => props.setPointer(node)}/>);
+                onClick={e => props.setPointer(node, e.metaKey || e.altKey || e.shiftKey || e.ctrlKey)}/>);
 
             if(trail.includes(view.pointer) && trail.length > 0){
                 var trailIndex = trail.indexOf(view.pointer),
@@ -192,12 +192,22 @@ function Slice(props){
     var pathIndex = path.indexOf(pointer);
     var chunk = getCurrentChunk(props.store, pointer, props.views, props.messages);
 
-    var updatePointer = (id) => {
+    var updatePointer = (id, shouldFork) => {
+        // if(shouldFork){
+        //     console.log('update pointer', id, shouldFork)
+        //     props.fork({
+
+        //     })
+        //     return
+        // }
+
+        const applyUpdate = e => shouldFork ? props.fork(e) : props.update(e);
+
         if(path.includes(id)){
-            props.update({ pointer: id })    
+            applyUpdate({ pointer: id })    
         }else{
             // TODO: find a suitable end-of-line for anchor
-            props.update({ pointer: id, anchor: computeAnchor(props.store, id) })
+            applyUpdate({ pointer: id, anchor: computeAnchor(props.store, id) })
         }
     }
 
@@ -213,9 +223,9 @@ function Slice(props){
 
     var fork = () => {
         props.fork()
-        if(!props.messages[props.view.pointer]){
-            props.setMessage(props.view.pointer, 'r' + pathIndex)
-        }
+        // if(!props.messages[props.view.pointer]){
+        //     props.setMessage(props.view.pointer, 'r' + pathIndex)
+        // }
     }
 
     var save = () => {
@@ -248,11 +258,19 @@ function Slice(props){
                 onClick={e => props.update({ hideFooter: !props.view.hideFooter })}>
                 {props.view.hideFooter ? "▼" : '▲'}</div>
 
-            <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(no commit message)" 
-                onChange={e => props.setMessage(chunk, e.target.value) }/>
+            <input 
+                type="text" 
+                className="title" value={props.messages[chunk] || ''} 
+                placeholder="(no commit message)" 
+                onChange={e => props.setMessage(chunk, e.target.value) } 
+                onKeyDown={e => {
+                    if(e.keyCode === 13){
+                        e.preventDefault()
+                        console.log('ok i pressed enter')
+                    }
+                }}/>
 
             
-
             <div className={"button " + (props.viewIndex == props.view.id ? 'active' : 'inactive')} 
                 onClick={e => props.toggleFocus(props.view.id)}>
                 <i className="fa fa-compress" aria-hidden="true" /></div>

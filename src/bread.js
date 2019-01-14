@@ -212,7 +212,7 @@ export default class Bread extends React.Component {
 					}}
 					fork={e => {
 						var newRows = this.cloneLayout().rows;
-						newRows[rowi].elements.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }) )
+						newRows[rowi].elements.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }, e || {}) )
 						this.props.updateLayout({ rows: newRows })
 					}}
 					update={e => {

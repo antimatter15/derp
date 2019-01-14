@@ -252,6 +252,9 @@ function Slice(props){
         compare = getState(props.store, props.getView(props.viewIndex).pointer || null)
     }
 
+    let title;
+    let widget;
+
     return <div className={"slice " + (props.isDragging ? 'dragging ' : '') + (props.viewIndex == props.view.id ? 'reference ' : '')}>
         <div className="header" onMouseDown={props.beginDrag}>
             <div className={"button-toggle " + (props.view.hideFooter?'inactive':'active')} 
@@ -261,13 +264,14 @@ function Slice(props){
 
             <input 
                 type="text" 
+                ref={e => title = e}
                 className="title" value={props.messages[chunk] || ''} 
                 placeholder="no description" 
                 onChange={e => props.setMessage(chunk, e.target.value) } 
                 onKeyDown={e => {
                     if(e.keyCode === 13){
                         e.preventDefault()
-                        console.log('ok i pressed enter')
+                        widget.focus()
                     }
                 }}/>
 
@@ -305,7 +309,9 @@ function Slice(props){
                 setPointer={updatePointer} />
         </div>}
         
-        <Widget 
+        <Widget
+            ref={e => widget = e}
+            setMessage={e => title.focus()}
             undo={e => (pathIndex > 0) && updatePointer(path[pathIndex - 1])}
             redo={e => (pathIndex < path.length - 1) && updatePointer(path[pathIndex + 1])}
             fork={e => fork()}
@@ -323,7 +329,7 @@ const DEFAULT_STATE = {
     store: {
     },
     messages: {
-        null: 'blank'
+        null: ''
     },
     layout: {
         rows: []

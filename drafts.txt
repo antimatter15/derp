@@ -1,0 +1,6 @@
+Let's reimagine version control from scratch, throwing out all our preconceptions of what a version control system looks like.
+
+
+You'd probably wind up with something quite different from the things like Git and Subversion we're familiar with today. 
+
+

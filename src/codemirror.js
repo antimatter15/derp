@@ -10,6 +10,7 @@ import 'codemirror/keymap/sublime'
 import "codemirror/addon/edit/closebrackets"
 import 'codemirror/addon/edit/matchbrackets'
 import "codemirror/addon/comment/comment"
+import "./codemirror.css"
 
 var DiffMatchPatch = require('diff-match-patch');
 var dmp = new DiffMatchPatch();
@@ -94,26 +95,53 @@ class CodeEditor extends React.Component {
         })
 
         if(typeof this.props.compare === 'string'){
-            var diff = JsDiff.diffTrimmedLines(this.props.compare, this.props.value)
-            var offset = 0;
-            for(var i = 0; i < diff.length; i++){
-                let { changed, added, removed, value, count } = diff[i];
-                if(removed){
-                    var node = document.createElement('div')
-                    node.innerText = value;
-                    node.className = 'line-removed'
-                    this.cm.lineWidgets.push(cm.addLineWidget(offset, node, {
-                        above: true
-                    }))
-                }else if(added){
-                    cm.eachLine(offset, offset + count, line => {
-                        cm.addLineClass(line, 'background', 'line-inserted')
+            // var diff = JsDiff.diffTrimmedLines(this.props.compare, this.props.value)
+            // var offset = 0;
+            // for(var i = 0; i < diff.length; i++){
+            //     let { changed, added, removed, value, count } = diff[i];
+            //     if(removed){
+            //         var node = document.createElement('div')
+            //         node.innerText = value;
+            //         node.className = 'line-removed'
+            //         this.cm.lineWidgets.push(cm.addLineWidget(offset, node, {
+            //             above: true
+            //         }))
+            //     }else if(added){
+            //         cm.eachLine(offset, offset + count, line => {
+            //             cm.addLineClass(line, 'background', 'line-inserted')
+            //         })
+            //         offset += count
+            //     }else{
+            //         offset += count
+            //     }
+            // }
+
+            var changes = dmp.diff_main(this.props.compare, this.props.value);
+            dmp.diff_cleanupSemantic(changes)
+            var choffset = 0;
+            for(var j = 0; j < changes.length; j++){
+                let [type, text] = changes[j];
+                if(type < 0){ // delete
+                    let thing = document.createElement('span')
+                    thing.className = 'deleted'
+                    thing.innerText = text;
+                    let mark = cm.setBookmark(cm.posFromIndex(choffset), {
+                        widget: thing
                     })
-                    offset += count
+                    mark.__diff = true;
+                }else if(type > 0){ // insert
+                    let mark = cm.markText(cm.posFromIndex(choffset), cm.posFromIndex(choffset + text.length), {
+                        className: 'inserted'
+                    })
+                    mark.__diff = true;
+
+                    choffset += text.length;
+                    
                 }else{
-                    offset += count
+                    choffset += text.length;
                 }
             }
+
 
 
             // for(var i = 1; i < diff.length; i++){
@@ -244,6 +272,15 @@ class CodeEditor extends React.Component {
     render(){ return <div className="editor" /> }
 }
 
+
+export function reduce(prev, delta){
+    if(!prev) return { version: 0, data: '' };
+
+    return {
+        version: prev.version + 1,
+        data: delta.text
+    }
+}
 
 export default function Widget(props){
     var state = props.state;

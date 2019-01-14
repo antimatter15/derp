@@ -4,16 +4,7 @@ import ReactDOM from 'react-dom';
 import "./app.css"
 import "./dag.css"
 import Bread from './bread.js'
-import Widget from './widget.js'
-
-function reduce(prev, delta){
-    if(!prev) return { version: 0, data: '' };
-
-    return {
-        version: prev.version + 1,
-        data: delta.text
-    }
-}
+import Widget, { reduce } from './codemirror.js'
 
 
 function getState(store, id){
@@ -253,6 +244,10 @@ function Slice(props){
 
     return <div className={"slice " + (props.isDragging ? 'dragging ' : '') + (props.viewIndex == props.view.id ? 'reference ' : '')}>
         <div className="header" onMouseDown={props.beginDrag}>
+            <div className={"button-toggle " + (props.view.hideFooter?'inactive':'active')} 
+                onClick={e => props.update({ hideFooter: !props.view.hideFooter })}>
+                {props.view.hideFooter ? "▼" : '▲'}</div>
+
             <input type="text" className="title" value={props.messages[chunk] || ''} placeholder="(no commit message)" 
                 onChange={e => props.setMessage(chunk, e.target.value) }/>
 
@@ -260,11 +255,9 @@ function Slice(props){
 
             <div className={"button " + (props.viewIndex == props.view.id ? 'active' : 'inactive')} 
                 onClick={e => props.toggleFocus(props.view.id)}>
-                <i className="fa fa-exchange" aria-hidden="true" /></div>
+                <i className="fa fa-compress" aria-hidden="true" /></div>
 
-            <div className={"button " + (props.view.showFooter?'active':'inactive')} 
-                onClick={e => props.update({ showFooter: !props.view.showFooter })}>
-                <i className="fa fa-history" aria-hidden="true" /></div>
+            
 
             <div className="button" onClick={fork}>
                 <i className="fa fa-code-fork" aria-hidden="true" /></div>
@@ -276,7 +269,7 @@ function Slice(props){
         
         </div>
 
-        {props.view.showFooter ? <div className="footer"> 
+        {props.view.hideFooter ? null : <div className="footer"> 
             <input type="range" className="time-slider" min={0} max={path.length - 1} 
                 disabled={path.length < 2}
                 onChange={e => updatePointer(path[e.target.value])}
@@ -288,7 +281,7 @@ function Slice(props){
                 messages={props.messages}
                 views={props.views}
                 setPointer={updatePointer} />
-        </div> : null}
+        </div>}
         
         <Widget 
             undo={e => (pathIndex > 0) && updatePointer(path[pathIndex - 1])}
@@ -304,27 +297,76 @@ function Slice(props){
 }
 
 
+const DEFAULT_STATE = {
+    store: {
+    },
+    messages: {
+        null: 'blank'
+    },
+    layout: {
+        rows: []
+    }
+}
 
 class App extends React.Component {
     constructor(){
         super()
-        this.state = {
-            store: {
-            },
-            messages: {
-                null: 'blank'
-            },
-            layout: {
-                rows: []
-            }
+        try {
+            this.state = JSON.parse(localStorage.state)
+
+            this.state.layout.rows.length;
+        }catch(e){
+            this.state = JSON.parse(JSON.stringify(DEFAULT_STATE))
         }
+        // window.onstorage = () => {
+        //     var latest = JSON.parse(localStorage.state);
+        //     if(JSON.stringify(latest.store) != JSON.stringify(this.state.store) ||
+        //         JSON.stringify(latest.messages) != JSON.stringify(this.state.messages)){
+        //         this.setState({ store: latest.store, messages: latest.messages })    
+        //     }
+        // }
     }
+    componentDidUpdate(){
+        localStorage.state = JSON.stringify(this.state)
+    }
+
     render(){
         global.App = this;
-        
+
         return <div>
             <div className="main-header">
-                <h1>derp notebook</h1>
+                <h1>derp version control prototype</h1>
+
+                <div className="toolbar">
+                    <div className="button" onClick={e => {
+                        if(confirm('Are you sure you want to clear all history and start over? This can not be undone.')){
+                            localStorage.state = null
+                            this.setState(JSON.parse(JSON.stringify(DEFAULT_STATE)));    
+                        }
+                    }} title="Clear everything">
+                        <i className="fa fa-trash" aria-hidden="true"></i></div>
+                </div>
+            </div>
+            <div className="main-header">
+            <div>
+                <p>
+                
+                <b>Derp</b> is <b>version control</b> reimagined for <b>experimentation</b> and <b>live collaboration</b> in the internet age.
+                </p>
+                <p>
+
+                Rather than operating on files, it’s integrated into an application's state management system. 
+
+                Coupled with a projectional window management system, you can create <b>lightweight forks</b> to try new ideas while referencing other versions. 
+
+                Edits are synchronized character-by-character over the internet in <b>real-time</b>. 
+
+                It blends the simplicity of <b>undo/redo</b> with the power and reliability of modern distributed version control systems like Git.
+
+                You never have to worry about losing data by a series of undos, redos, and edits. And you never have to worry about forgetting to commit code. 
+
+                </p>
+                </div>
             </div>
             <Bread 
                 Slice={Slice} 

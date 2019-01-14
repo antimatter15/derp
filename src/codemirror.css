@@ -1,0 +1,47 @@
+
+.CodeMirror {
+    height: auto !important;
+    min-height: 100px;
+    font-size: 13px;
+}
+
+.editor .CodeMirror pre {
+    padding: 0 10px;
+}
+
+.editor .CodeMirror-lines {
+    padding: 10px 0;
+}
+
+
+.deleted {
+    color: #b30000;
+    background: #fadad7;
+}
+
+.inserted {
+    background: #eaf2c2;
+    color: #406619;
+}
+
+.line-inserted {
+    background: #c9f1c9;
+}
+
+.line-changed {
+    background: #ffffbb;
+}
+
+
+.line-removed {
+    background: #ffd7d7;
+    padding: 0 10px;
+}
+
+
+span.result {
+    background: #dedede;
+    padding: 0 4px;
+    margin: 0 5px;
+    border-radius: 2px;
+}

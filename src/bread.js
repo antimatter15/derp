@@ -29,15 +29,7 @@ function uuid(){
 export default class Bread extends React.Component {
 	constructor(){
 		super()
-		this.state = {
-			// things: ['hello', 'darkness', 'my', 'old', 'friend'],
-			rows: [
-				// {id: 'a', elements: ['hello']},
-				// {id: 'b', elements: ['darkness', 'my old']},
-				// {id: 'c', elements: ['friend']}
-			],
-			dragThing: null
-		}
+		this.state = { dragThing: null }
 		this.mouseMove = this.mouseMove.bind(this)
 		this.mouseUp = this.mouseUp.bind(this)
 	}

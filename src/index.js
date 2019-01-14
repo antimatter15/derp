@@ -341,8 +341,7 @@ class App extends React.Component {
         super()
         try {
             this.state = JSON.parse(localStorage.state)
-
-            this.state.layout.rows.length;
+            console.log(this.state.layout.rows.length);
         }catch(e){
             this.state = JSON.parse(JSON.stringify(DEFAULT_STATE))
         }
@@ -367,7 +366,7 @@ class App extends React.Component {
 
                 <div className="toolbar">
                     <div className="button" onClick={e => {
-                        if(confirm('Are you sure you want to clear all history and start over? This can not be undone.')){
+                        if(window.confirm('Are you sure you want to clear all history and start over? This can not be undone.')){
                             localStorage.state = null
                             this.setState(JSON.parse(JSON.stringify(DEFAULT_STATE)));    
                         }

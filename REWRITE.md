@@ -4,7 +4,7 @@ Derp Core
 
 Derp core consists of two databases: an append-only DAG for revisions, and a read/write database for commit metadata. 
 
-
+```
 class DerpDB {
 	stateFromView(view){
 		return new DerpState(view)
@@ -44,3 +44,4 @@ Application (state, view)
 
 
 
+```

@@ -266,7 +266,8 @@ function Slice(props){
                 type="text" 
                 ref={e => title = e}
                 className="title" value={props.messages[chunk] || ''} 
-                placeholder="no description" 
+                placeholder={pointer == null ?  "blank" : "no description" }
+                disabled={pointer == null}
                 onChange={e => props.setMessage(chunk, e.target.value) } 
                 onKeyDown={e => {
                     if(e.keyCode === 13){

@@ -105,9 +105,11 @@ export default class CodeEditor extends React.Component {
             cm.removeLineClass(line, 'background', 'line-changed')
         })
 
-        if(typeof this.props.compare === 'string'){
+        let compare = this.props.compare && this.props.compare.data
 
-            var changes = dmp.diff_main(this.props.compare, this.props.state.data);
+        if(typeof compare === 'string'){
+
+            var changes = dmp.diff_main(compare, this.props.state.data);
             dmp.diff_cleanupSemantic(changes)
             var choffset = 0;
             for(var j = 0; j < changes.length; j++){

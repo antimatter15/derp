@@ -51,7 +51,25 @@ function Slice(props){
 
     var compare;
     if(props.viewIndex){
-        compare = getState(reduce, props.store, props.getView(props.viewIndex).pointer || null)
+        let view = props.getView(props.viewIndex)
+        compare = getState(reduce, props.store, view && view.pointer || null)
+    }
+
+    var compareCommit = (delta) => {
+        if(!compare) return;
+        let view = props.getView(props.viewIndex)
+
+        var id = 'C' + Date.now();
+        props.appendStore(id, { 
+            parent: view && view.pointer || null, 
+            delta: delta,
+            date: Date.now()
+        })
+        
+        props.updateView(props.viewIndex, {
+            pointer: id,
+            anchor: id
+        })
     }
 
     let title;
@@ -119,7 +137,7 @@ function Slice(props){
             redo={e => (pathIndex < path.length - 1) && updatePointer(path[pathIndex + 1])}
             fork={e => fork()}
             save={e => save()}
-
+            compareCommit={compareCommit}
             compare={compare}
             state={state} 
             commit={commit} />
@@ -131,6 +149,7 @@ function Slice(props){
 const DEFAULT_STATE = {
     store: {
     },
+    viewIndex: null,
     messages: {
         null: ''
     },

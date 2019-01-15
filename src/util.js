@@ -25,7 +25,7 @@ export function getChildren(store, id){
 export function getState(reduceFn, store, id){
     var commit = store[id];
     if(!commit) return reduceFn(null, null);
-    return reduceFn(getState(store, commit.parent), commit.delta);
+    return reduceFn(getState(reduceFn, store, commit.parent), commit.delta);
 }
 
 export function getPath(store, id){

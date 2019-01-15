@@ -17,11 +17,13 @@
 .deleted {
     color: #b30000;
     background: #fadad7;
+    cursor: pointer;
 }
 
 .inserted {
     background: #eaf2c2;
     color: #406619;
+    cursor: pointer;
 }
 
 .line-inserted {

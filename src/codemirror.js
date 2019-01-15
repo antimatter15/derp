@@ -79,7 +79,14 @@ export default class CodeEditor extends React.Component {
         cm.on('change', (cm, ch) => {
             if(ch.origin !== 'setValue' && cm.getValue() !== this.props.state.data){
                 // this.props.onChange(cm.getValue())
-                this.props.commit({ text: cm.getValue() })
+                // console.log(cm.listSelections())
+                this.props.commit({ 
+                    text: cm.getValue(),
+                    selections: cm.listSelections().map(k => [
+                        cm.indexFromPos(k.anchor),
+                        cm.indexFromPos(k.head),
+                    ])
+                })
             }
             cm.getAllMarks()
                 .filter(k => k.__result && k.__lineText.trim() !== cm.getLine(k.find().line).trim())
@@ -111,27 +118,67 @@ export default class CodeEditor extends React.Component {
 
             var changes = dmp.diff_main(compare, this.props.state.data);
             dmp.diff_cleanupSemantic(changes)
+
+
+
+
+          // var a = dmp.diff_linesToChars_(compare, this.props.state.data);
+          // var lineText1 = a.chars1;
+          // var lineText2 = a.chars2;
+          // var lineArray = a.lineArray;
+          // var changes = dmp.diff_main(lineText1, lineText2, false);
+          // dmp.diff_charsToLines_(changes, lineArray);
+
+
+
             var choffset = 0;
+            var cmpoffset = 0;
+
             for(var j = 0; j < changes.length; j++){
                 let [type, text] = changes[j];
                 if(type < 0){ // delete
                     let thing = document.createElement('span')
                     thing.className = 'deleted'
                     thing.innerText = text;
+                    let startpos = choffset;
+                    thing.onclick = () => {
+                        console.log('delete!', text)
+                        this.props.compareCommit({
+                            text: compare.slice(0, startpos) + compare.slice(startpos + text.length)
+                        })
+                    }
+
                     let mark = cm.setBookmark(cm.posFromIndex(choffset), {
                         widget: thing
                     })
                     mark.__diff = true;
+                    cmpoffset += text.length;
+
                 }else if(type > 0){ // insert
+                    let thing = document.createElement('span')
+                    thing.className = 'inserted'
+                    thing.innerText = text;
+                    let startpos = cmpoffset;
+
+                    thing.onclick = () => {
+                        console.log('insert!', text)
+
+                        this.props.compareCommit({
+                            text: compare.slice(0, startpos) + text + compare.slice(startpos)
+                        })
+                    }
+
                     let mark = cm.markText(cm.posFromIndex(choffset), cm.posFromIndex(choffset + text.length), {
-                        className: 'inserted'
+                        replacedWith: thing
                     })
                     mark.__diff = true;
 
                     choffset += text.length;
+
                     
                 }else{
                     choffset += text.length;
+                    cmpoffset += text.length;
                 }
             }
 
@@ -139,10 +186,13 @@ export default class CodeEditor extends React.Component {
     }
     componentDidUpdate(){
         if(!this.cm.curOp && this.props.state.data !== this.cm.getValue()){
-            var selections = this.cm.getSelections()
+            // var selections = this.cm.listSelections()
             this.cm.setValue(this.props.state.data)
             try {
-                this.cm.setSelections(selections)
+                this.cm.setSelections(this.props.state.selections.map(([anchor, head]) => ({
+                    anchor: this.cm.posFromIndex(anchor),
+                    head: this.cm.posFromIndex(head)
+                })))
             } catch (err) {}
         }
         this.updateDiff()
@@ -156,11 +206,12 @@ export default class CodeEditor extends React.Component {
 
 
 export function reduce(prev, delta){
-    if(!prev) return { version: 0, data: '' };
+    if(!prev) return { version: 0, data: '', selections: [] };
 
     return {
         version: prev.version + 1,
-        data: delta.text
+        data: delta.text,
+        selections: delta.selections || prev.selections
     }
 }
 

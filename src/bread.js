@@ -210,6 +210,14 @@ export default class Bread extends React.Component {
 						}))
 						return result;
 					}}
+					updateView={(id, e) => {
+						var newRows = this.props.layout.rows.map(row => {
+							return Object.assign(row, { elements: row.elements.map(data => {
+								return (data.id == id) ? Object.assign({}, data, e) : data
+							}) })
+						})
+						this.props.updateLayout({ rows: newRows })
+					}}
 					fork={e => {
 						var newRows = this.cloneLayout().rows;
 						newRows[rowi].elements.splice(coli + 1, 0, Object.assign({}, data, { id: uuid() }, e || {}) )

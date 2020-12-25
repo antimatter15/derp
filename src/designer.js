@@ -1,9 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react'
+import ReactDOM from 'react-dom'
 // import Designer, {Text, Rect} from 'react-designer';
 
-export default function Widget(props){
-    var state = props.state;
+export default function Widget(props) {
+    var state = props.state
     console.log(require('react-color'))
 
     return <div>hi</div>
@@ -16,16 +16,14 @@ export default function Widget(props){
     //         objects={state.objects} />
 }
 
-export function reduce(prev, delta){
-    if(!prev) return { version: 0, objects: [] };
+export function reduce(prev, delta) {
+    if (!prev) return { version: 0, objects: [] }
 
     return {
         version: prev.version + 1,
-        objects: delta.objects
+        objects: delta.objects,
     }
 }
-
-
 
 // export default function Widget(props){
 //     var state = props.state;
@@ -33,10 +31,10 @@ export function reduce(prev, delta){
 //         return <div>(no state)</div>
 //     }
 //     return <div className="widget">
-//             <CodeEditor 
+//             <CodeEditor
 //                 value={state.data}
-                
-//                 undo={props.undo} 
+
+//                 undo={props.undo}
 //                 redo={props.redo}
 //                 fork={props.fork}
 //                 save={props.save}

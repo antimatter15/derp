@@ -1,116 +1,114 @@
 .row-1 {
-  max-width: 70vw;
-  margin-left: auto;
-  margin-right: auto;
+    max-width: 70vw;
+    margin-left: auto;
+    margin-right: auto;
 }
-
 
 .row > * {
-	display: flex;
+    display: flex;
 }
 .row {
-  border-bottom: 5px solid transparent;
+    border-bottom: 5px solid transparent;
 }
 .row:first-child {
-	border-top: 5px solid transparent;
+    border-top: 5px solid transparent;
 }
 
-
 .row.insert-top {
-  border-top: 5px solid purple; 
+    border-top: 5px solid purple;
 }
 
 .row.insert-bottom {
-  border-bottom: 5px solid purple; 
+    border-bottom: 5px solid purple;
 }
-
 
 .col {
-	flex-basis: 0;
-	flex-grow: 1;
-	border-right: 5px solid transparent;
-	padding: 5px;
-  overflow: hidden;
+    flex-basis: 0;
+    flex-grow: 1;
+    border-right: 5px solid transparent;
+    padding: 5px;
+    overflow: hidden;
 }
 .col:first-child {
-	border-left: 5px solid transparent;
+    border-left: 5px solid transparent;
 }
 
-
 .col.insert-left {
-  border-left: 5px solid purple; 
+    border-left: 5px solid purple;
 }
 
 .col.insert-right {
-  border-right: 5px solid purple; 
+    border-right: 5px solid purple;
 }
 
-
 .fake-slice {
-  border: 2px dashed #d8d8d8;
-  border-radius: 2px;
-  min-height: 30px;
-  padding-bottom: 20px;
-  text-align: center;
-  font-size: 100px;
-  color: #d8d8d8;
-  -webkit-user-select: none;
-  cursor: pointer;
+    border: 2px dashed #d8d8d8;
+    border-radius: 2px;
+    min-height: 30px;
+    padding-bottom: 20px;
+    text-align: center;
+    font-size: 100px;
+    color: #d8d8d8;
+    -webkit-user-select: none;
+    cursor: pointer;
 
-  transition: all 200ms ease-in;
+    transition: all 200ms ease-in;
 }
 
 .fake-slice:hover {
-  border: 2px dashed gray;
-  color: gray;
+    border: 2px dashed gray;
+    color: gray;
 }
-
 
 .example-enter {
-  /* 0 does not work so we have to use a small number */
-  /* Start our small */
-  flex: .00001;
+    /* 0 does not work so we have to use a small number */
+    /* Start our small */
+    flex: 0.00001;
 
-  -webkit-animation: flexGrow 300ms ease forwards;
-  -o-animation: flexGrow 300ms ease forwards;
-  animation: flexGrow 300ms ease forwards;
+    -webkit-animation: flexGrow 300ms ease forwards;
+    -o-animation: flexGrow 300ms ease forwards;
+    animation: flexGrow 300ms ease forwards;
 }
-
 
 .example-leave {
-  flex: 1;
+    flex: 1;
 
-  -webkit-animation: flexShrink 300ms ease forwards;
-  -o-animation: flexShrink 300ms ease forwards;
-  animation: flexShrink 300ms ease forwards;
+    -webkit-animation: flexShrink 300ms ease forwards;
+    -o-animation: flexShrink 300ms ease forwards;
+    animation: flexShrink 300ms ease forwards;
 }
-
 
 @-webkit-keyframes flexGrow {
-  to { flex: 1; }
+    to {
+        flex: 1;
+    }
 }
 @-o-keyframes flexGrow {
-  to { flex: 1; }
+    to {
+        flex: 1;
+    }
 }
 @keyframes flexGrow {
-  to { flex: 1; }
+    to {
+        flex: 1;
+    }
 }
 
 @-webkit-keyframes flexShrink {
-  to {
-    flex: .01;
-    flex: .00001;
-  }
+    to {
+        flex: 0.01;
+        flex: 0.00001;
+    }
 }
 @-o-keyframes flexShrink {
-  to {
-    flex: .01;
-    flex: .00001;
-  }
+    to {
+        flex: 0.01;
+        flex: 0.00001;
+    }
 }
 @keyframes flexShrink {
-  to {
-    flex: .01;
-    flex: .00001;
-  }
+    to {
+        flex: 0.01;
+        flex: 0.00001;
+    }
 }

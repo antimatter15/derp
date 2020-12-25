@@ -24,22 +24,19 @@ h1 {
 .main-header .toolbar {
     text-align: right;
     flex-grow: 1;
-    margin-top: 25px
+    margin-top: 25px;
 }
 
 .main-header .toolbar .button {
-
     font-size: 1.5em;
     color: grey;
     cursor: pointer;
     transition: color 300ms ease-in;
 }
 
-
 .main-header .toolbar .button:hover {
     color: black;
 }
-
 
 .slice {
     border: 1px solid #d8d8d8;
@@ -74,9 +71,7 @@ h1 {
     cursor: pointer;
 
     display: flex;
-
 }
-
 
 .slice .header .button {
     border-radius: 3px;
@@ -106,7 +101,7 @@ h1 {
 }
 
 .slice .header .button:hover {
-  color: black;
+    color: black;
 }
 
 .slice .header .button.active {
@@ -121,18 +116,15 @@ h1 {
     outline: none;
 }
 
-.slice .header ::-webkit-input-placeholder { font-style: italic; }
-
-
-
+.slice .header ::-webkit-input-placeholder {
+    font-style: italic;
+}
 
 .slice .footer {
     padding: 5px 10px;
     background: #f5f5f5;
     border-bottom: 1px solid #d8d8d8;
 }
-
-
 
 .time-slider {
     width: 100%;
@@ -146,8 +138,25 @@ h1 {
 
 .slice.reference {
     box-shadow: 1px 2px 7px rgba(94, 8, 148, 0.27);
+    border: 1px solid purple;
 }
 
 .slice.reference .header {
-    background: #f2eaff
+    background: #f2eaff;
 }
+/* 
+body.merge {
+    background: gray;
+    color: white;
+}
+
+.slice.other .header {
+    background: #969696;
+}
+
+.slice.other .footer {
+    background: #c7c7c7;
+}
+.slice.other .CodeMirror {
+    background: #e2e2e2;
+} */

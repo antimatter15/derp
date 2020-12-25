@@ -1,65 +1,59 @@
-
 var childStore = null,
-    childMapping = {};
+    childMapping = {}
 
-
-export function getChildren(store, id){
-    if(store !== childStore){
-        childStore = store;
+export function getChildren(store, id) {
+    if (store !== childStore) {
+        childStore = store
         childMapping = {}
-        for(var k in store){
-            var parent = store[k].parent;
-            if(!childMapping[parent]){
-                childMapping[parent] = [k];
-            }else{
+        for (var k in store) {
+            var parent = store[k].parent
+            if (!childMapping[parent]) {
+                childMapping[parent] = [k]
+            } else {
                 childMapping[parent].push(k)
             }
         }
     }
-    return childMapping[id] || [];
+    return childMapping[id] || []
 }
 
-
-
-
-export function getState(reduceFn, store, id){
-    var commit = store[id];
-    if(!commit) return reduceFn(null, null);
-    return reduceFn(getState(reduceFn, store, commit.parent), commit.delta);
+export function getState(reduceFn, store, id) {
+    var commit = store[id]
+    if (!commit) return reduceFn(null, null)
+    return reduceFn(getState(reduceFn, store, commit.parent), commit.delta)
 }
 
-export function getPath(store, id){
-    var commit = store[id];
-    if(!commit) return [null];
+export function getPath(store, id) {
+    var commit = store[id]
+    if (!commit) return [null]
     return getPath(store, commit.parent).concat([id])
 }
 
-
-
-export function computeAnchor(store, id){
+export function computeAnchor(store, id) {
     var children = getChildren.bind(this, store)
-    var node = id;
-    var ch = children(node);
-    while(ch.length > 0){
+    var node = id
+    var ch = children(node)
+    while (ch.length > 0) {
         node = ch[0]
         ch = children(node)
     }
-    return node;
+    return node
 }
 
-export function getCurrentChunk(store, id, views, messages){
+export function getCurrentChunk(store, id, views, messages) {
     var children = getChildren.bind(this, store)
-    var node = id;
-    var ch = children(node);
+    var node = id
+    var ch = children(node)
 
-    while(ch.length === 1 
-        && node 
+    while (
+        ch.length === 1 &&
+        node &&
         // && !views.some(k => k.anchor == node)
-        && !(messages[node])
-        ){
+        !messages[node]
+    ) {
         node = ch[0]
         // trail.push(node)
         ch = children(node)
     }
-    return node;
+    return node
 }

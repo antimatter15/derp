@@ -77,6 +77,8 @@ function Slice(props) {
         if (!props.messages[id]) {
             props.setMessage(id, 'Merge')
         }
+
+        props.setMergePreview(null)
     }
 
     let title
@@ -168,6 +170,8 @@ function Slice(props) {
                 fork={e => fork()}
                 save={e => save()}
                 compareCommit={compareCommit}
+                mergePreview={props.viewIndex == props.view.id ? props.mergePreview : null}
+                setMergePreview={props.setMergePreview}
                 compare={compare}
                 state={state}
                 commit={commit}
@@ -264,14 +268,21 @@ class App extends React.Component {
                     store={this.state.store}
                     messages={this.state.messages}
                     viewIndex={this.state.viewIndex}
+                    mergePreview={this.state.mergePreview}
                     toggleFocus={id =>
-                        this.setState({ viewIndex: this.state.viewIndex == id ? null : id })
+                        this.setState({
+                            viewIndex: this.state.viewIndex == id ? null : id,
+                            mergePreview: null,
+                        })
                     }
                     appendStore={(id, value) =>
                         this.setState({
                             store: Object.assign({}, this.state.store, { [id]: value }),
                         })
                     }
+                    setMergePreview={data => {
+                        if (this.state.mergePreview !== data) this.setState({ mergePreview: data })
+                    }}
                     setMessage={(id, message) =>
                         this.setState({
                             messages: Object.assign({}, this.state.messages, { [id]: message }),

@@ -134,7 +134,7 @@ export default class CodeEditor extends React.Component {
                     thing.className = 'deleted'
                     thing.innerText = text
                     let startpos = choffset
-                    thing.title = `Delete ${JSON.stringify(text)} from target cell`
+                    thing.title = `Delete ${JSON.stringify(text)} from reference cell`
                     thing.onclick = () => {
                         console.log('delete!', text)
                         this.props.compareCommit({
@@ -142,6 +142,14 @@ export default class CodeEditor extends React.Component {
                                 compare.slice(0, startpos) + compare.slice(startpos + text.length),
                         })
                         // this.props.save()
+                    }
+                    thing.onmouseenter = () => {
+                        this.props.setMergePreview(
+                            compare.slice(0, startpos) + compare.slice(startpos + text.length)
+                        )
+                    }
+                    thing.onmouseleave = () => {
+                        this.props.setMergePreview(null)
                     }
 
                     let mark = cm.setBookmark(cm.posFromIndex(choffset), {
@@ -155,7 +163,7 @@ export default class CodeEditor extends React.Component {
                     thing.className = 'inserted'
                     thing.innerText = text
                     let startpos = cmpoffset
-                    thing.title = `Insert ${JSON.stringify(text)} into target cell`
+                    thing.title = `Insert ${JSON.stringify(text)} into reference cell`
                     thing.onclick = () => {
                         console.log('insert!', text)
 
@@ -163,6 +171,14 @@ export default class CodeEditor extends React.Component {
                             text: compare.slice(0, startpos) + text + compare.slice(startpos),
                         })
                         // this.props.save()
+                    }
+                    thing.onmouseenter = () => {
+                        this.props.setMergePreview(
+                            compare.slice(0, startpos) + text + compare.slice(startpos)
+                        )
+                    }
+                    thing.onmouseleave = () => {
+                        this.props.setMergePreview(null)
                     }
 
                     let mark = cm.markText(
@@ -183,19 +199,62 @@ export default class CodeEditor extends React.Component {
         }
     }
     componentDidUpdate() {
-        if (!this.cm.curOp && this.props.state.data !== this.cm.getValue()) {
-            // var selections = this.cm.listSelections()
-            this.cm.setValue(this.props.state.data)
-            try {
-                this.cm.setSelections(
-                    this.props.state.selections.map(([anchor, head]) => ({
-                        anchor: this.cm.posFromIndex(anchor),
-                        head: this.cm.posFromIndex(head),
-                    }))
-                )
-            } catch (err) {}
+        if (this.props.mergePreview) {
+            this.cm.setValue(this.props.mergePreview)
+            var changes = dmp.diff_main(this.props.state.data, this.props.mergePreview)
+            dmp.diff_cleanupSemantic(changes)
+            var cm = this.cm
+            var choffset = 0
+            var cmpoffset = 0
+
+            for (var j = 0; j < changes.length; j++) {
+                let [type, text] = changes[j]
+                if (type < 0) {
+                    // delete
+                    let thing = document.createElement('span')
+                    thing.className = 'deleted'
+                    thing.innerText = text
+                    let mark = cm.setBookmark(cm.posFromIndex(choffset), {
+                        widget: thing,
+                    })
+                    mark.__diff = true
+                    cmpoffset += text.length
+                } else if (type > 0) {
+                    // insert
+                    let thing = document.createElement('span')
+                    thing.className = 'inserted'
+                    thing.innerText = text
+
+                    let mark = cm.markText(
+                        cm.posFromIndex(choffset),
+                        cm.posFromIndex(choffset + text.length),
+                        {
+                            replacedWith: thing,
+                        }
+                    )
+                    mark.__diff = true
+
+                    choffset += text.length
+                } else {
+                    choffset += text.length
+                    cmpoffset += text.length
+                }
+            }
+        } else {
+            if (!this.cm.curOp && this.props.state.data !== this.cm.getValue()) {
+                // var selections = this.cm.listSelections()
+                this.cm.setValue(this.props.state.data)
+                try {
+                    this.cm.setSelections(
+                        this.props.state.selections.map(([anchor, head]) => ({
+                            anchor: this.cm.posFromIndex(anchor),
+                            head: this.cm.posFromIndex(head),
+                        }))
+                    )
+                } catch (err) {}
+            }
+            this.updateDiff()
         }
-        this.updateDiff()
     }
     render() {
         return (

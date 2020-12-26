@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { getPath, getChildren } from './util'
 
 var textNode = document.createElementNS('http://www.w3.org/2000/svg', 'text')

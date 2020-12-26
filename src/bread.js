@@ -15,7 +15,7 @@ function dist2(v, w) {
 }
 function distToSegmentSquared(p, v, w) {
     var l2 = dist2(v, w)
-    if (l2 == 0) return dist2(p, v)
+    if (l2 === 0) return dist2(p, v)
     var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2
     t = Math.max(0, Math.min(1, t))
     return dist2(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) })
@@ -47,7 +47,6 @@ export default class Bread extends React.Component {
         if (this.state.dragThing) {
             e.preventDefault()
         }
-        var clientY = e.clientY
         var el = ReactDOM.findDOMNode(this)
         var rows = el.querySelectorAll('.row')
         var thingRect
@@ -74,26 +73,26 @@ export default class Bread extends React.Component {
 
             var slices = rows[i].querySelectorAll('.slice')
             for (var j = 0; j < slices.length; j++) {
-                var rect = slices[j].getBoundingClientRect()
+                var sliceRect = slices[j].getBoundingClientRect()
                 if (j === 0) {
                     lines.push({
-                        x0: rect.left,
-                        x1: rect.left,
-                        y0: rect.top,
-                        y1: rect.bottom,
+                        x0: sliceRect.left,
+                        x1: sliceRect.left,
+                        y0: sliceRect.top,
+                        y1: sliceRect.bottom,
                         pos: 'left-' + i + '-' + j,
                     })
                 }
                 lines.push({
-                    x0: rect.right,
-                    x1: rect.right,
-                    y0: rect.top,
-                    y1: rect.bottom,
+                    x0: sliceRect.right,
+                    x1: sliceRect.right,
+                    y0: sliceRect.top,
+                    y1: sliceRect.bottom,
                     pos: 'right-' + i + '-' + j,
                 })
 
-                if (this.state.dragThing == i + '-' + j) {
-                    thingRect = rect
+                if (this.state.dragThing === i + '-' + j) {
+                    thingRect = sliceRect
                 }
             }
         }
@@ -116,7 +115,7 @@ export default class Bread extends React.Component {
             e.clientY < thingRect.bottom
         ) {
             closestPos =
-                +thing[1] == 0
+                +thing[1] === 0
                     ? 'left-' + thing.join('-')
                     : 'right-' + [thing[0], thing[1] - 1].join('-')
         }
@@ -147,14 +146,14 @@ export default class Bread extends React.Component {
 
             if (pos[0] === 'top' || pos[0] === 'bottom') {
                 if (
-                    nextRows[+thing[0]].elements.length == 1 &&
+                    nextRows[+thing[0]].elements.length === 1 &&
                     ((pos[0] === 'top' && +thing[0] === +pos[1]) ||
                         (pos[0] === 'bottom' && +thing[0] === parseInt(pos[1]) + 1) ||
                         (pos[0] === 'bottom' && +thing[0] === +pos[1]))
                 ) {
                 } else {
-                    var oldThing = nextRows[+thing[0]].elements.splice(+thing[1], 1)[0]
-                    var newRow = { id: uuid(), elements: [oldThing] }
+                    let oldThing = nextRows[+thing[0]].elements.splice(+thing[1], 1)[0]
+                    let newRow = { id: uuid(), elements: [oldThing] }
                     if (pos[0] === 'top') {
                         nextRows.splice(+pos[1], 0, newRow)
                     } else {
@@ -163,7 +162,7 @@ export default class Bread extends React.Component {
                 }
             } else if (pos[0] === 'left' || pos[0] === 'right') {
                 // swap it with null
-                var oldThing = nextRows[+thing[0]].elements.splice(+thing[1], 1, null)[0]
+                let oldThing = nextRows[+thing[0]].elements.splice(+thing[1], 1, null)[0]
 
                 if (pos[0] === 'left') {
                     nextRows[+pos[1]].elements.splice(+pos[2], 0, oldThing)
@@ -233,7 +232,7 @@ export default class Bread extends React.Component {
                                                 var result
                                                 this.props.layout.rows.forEach(row =>
                                                     row.elements.forEach(data => {
-                                                        if (data.id == id) result = data
+                                                        if (data.id === id) result = data
                                                     })
                                                 )
                                                 return result
@@ -242,7 +241,7 @@ export default class Bread extends React.Component {
                                                 var newRows = this.props.layout.rows.map(row => {
                                                     return Object.assign(row, {
                                                         elements: row.elements.map(data => {
-                                                            return data.id == id
+                                                            return data.id === id
                                                                 ? Object.assign({}, data, e)
                                                                 : data
                                                         }),

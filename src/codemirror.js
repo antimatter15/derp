@@ -15,13 +15,9 @@ var DiffMatchPatch = require('diff-match-patch')
 var dmp = new DiffMatchPatch()
 global.dmp = dmp
 
-var JsDiff = require('diff')
-
 export default class CodeEditor extends React.Component {
     componentDidMount() {
         var el = ReactDOM.findDOMNode(this).querySelector('.editor')
-
-        var state = this.props.state
 
         var cm = CodeMirror(el, {
             value: this.props.state.data,
@@ -46,7 +42,7 @@ export default class CodeEditor extends React.Component {
                         .forEach(k => k.clear())
 
                     function log(value) {
-                        var match = /\<anonymous\>:(\d+)/.exec(new Error().stack)
+                        var match = /<anonymous>:(\d+)/.exec(new Error().stack)
                         if (match) {
                             var line = parseInt(match[1], 10)
                             var thing = document.createElement('span')
@@ -205,7 +201,6 @@ export default class CodeEditor extends React.Component {
             dmp.diff_cleanupSemantic(changes)
             var cm = this.cm
             var choffset = 0
-            var cmpoffset = 0
 
             for (var j = 0; j < changes.length; j++) {
                 let [type, text] = changes[j]
@@ -218,7 +213,6 @@ export default class CodeEditor extends React.Component {
                         widget: thing,
                     })
                     mark.__diff = true
-                    cmpoffset += text.length
                 } else if (type > 0) {
                     // insert
                     let thing = document.createElement('span')
@@ -237,7 +231,6 @@ export default class CodeEditor extends React.Component {
                     choffset += text.length
                 } else {
                     choffset += text.length
-                    cmpoffset += text.length
                 }
             }
         } else {

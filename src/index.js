@@ -6,7 +6,7 @@ import './dag.css'
 import Bread from './bread.js'
 import Widget, { reduce } from './codemirror.js'
 import DAG from './dag'
-import { getCurrentChunk, computeAnchor, getChildren, getState, getPath } from './util'
+import { getCurrentChunk, computeAnchor, getState, getPath } from './util'
 
 function Slice(props) {
     var pointer = props.view.pointer || null,
@@ -90,7 +90,7 @@ function Slice(props) {
                 'slice ' +
                 (props.isDragging ? 'dragging ' : '') +
                 (props.viewIndex
-                    ? props.viewIndex == props.view.id
+                    ? props.viewIndex === props.view.id
                         ? 'reference '
                         : 'other '
                     : '')
@@ -110,8 +110,8 @@ function Slice(props) {
                     ref={e => (title = e)}
                     className="title"
                     value={props.messages[chunk] || ''}
-                    placeholder={pointer == null ? 'blank' : 'no description'}
-                    disabled={pointer == null}
+                    placeholder={pointer === null ? 'blank' : 'no description'}
+                    disabled={pointer === null}
                     onChange={e => props.setMessage(chunk, e.target.value)}
                     onKeyDown={e => {
                         if (e.keyCode === 13) {
@@ -123,7 +123,7 @@ function Slice(props) {
 
                 <div
                     className={
-                        'button ' + (props.viewIndex == props.view.id ? 'active' : 'inactive')
+                        'button ' + (props.viewIndex === props.view.id ? 'active' : 'inactive')
                     }
                     onClick={e => props.toggleFocus(props.view.id)}
                     title="Show differences relative to this version."
@@ -170,7 +170,7 @@ function Slice(props) {
                 fork={e => fork()}
                 save={e => save()}
                 compareCommit={compareCommit}
-                mergePreview={props.viewIndex == props.view.id ? props.mergePreview : null}
+                mergePreview={props.viewIndex === props.view.id ? props.mergePreview : null}
                 setMergePreview={props.setMergePreview}
                 compare={compare}
                 state={state}
@@ -271,7 +271,7 @@ class App extends React.Component {
                     mergePreview={this.state.mergePreview}
                     toggleFocus={id =>
                         this.setState({
-                            viewIndex: this.state.viewIndex == id ? null : id,
+                            viewIndex: this.state.viewIndex === id ? null : id,
                             mergePreview: null,
                         })
                     }
